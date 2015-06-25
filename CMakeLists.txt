@@ -34,4 +34,4 @@ message( STATUS "Will compile: ${PATHER_SOURCES}" )
 add_executable( ${PROJECT_NAME} ${PATHER_SOURCES} )
 
 # Link the libraries
-target_link_libraries( ${PROJECT_NAME} ${LIBS} )
+target_link_libraries( ${PROJECT_NAME} ${LIBS} m )

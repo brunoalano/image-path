@@ -30,6 +30,7 @@ typedef struct
 /*============================================================================*/
 /* Função central do trabalho. */
 
+void filter(Imagem1C *img, Imagem1C *dest);
 void probabilistic_binarization (Imagem1C* img);
 int encontraCaminho (Imagem1C* img, Coordenada** caminho);
 

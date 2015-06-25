@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/pather/imagem.h
+
+../include/pather/pather.h
+pather/imagem.h
+-
+
+/home/todos/alunos/ct/a1721119/projetos/image-path/src/imagem.c
+stdlib.h
+-
+stdio.h
+-
+math.h
+-
+pather/imagem.h
+-
+
+/home/todos/alunos/ct/a1721119/projetos/image-path/src/main.c
+stdio.h
+-
+stdlib.h
+-
+pather/pather.h
+-
+
+/home/todos/alunos/ct/a1721119/projetos/image-path/src/pather.c
+stdio.h
+-
+stdlib.h
+-
+stdint.h
+-
+stdbool.h
+-
+pather/pather.h
+-
+pather/imagem.h
+-
+
