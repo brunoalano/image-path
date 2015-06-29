@@ -115,6 +115,8 @@ void filter(Imagem1C *img, Imagem1C *dest)
 	/* Pixel Neighbors */
 	unsigned char ** pixel_neighbors;
 
+	float average = 0;
+
 	/* Iterate over height + 1 to height - 1 */
 	for (int y = 1; y < img->altura - 1; y++)
 	{
@@ -134,12 +136,15 @@ void filter(Imagem1C *img, Imagem1C *dest)
 			if ( value > 1 )
 				value = 1.0;
 
-			img->dados[y][x] = value > 0.5 ? 255 : 0;
+			average += value;
 
 			/* Free the memory block */
 			free(pixel_neighbors);
 		}
 	}
+
+	average /= img->altura * img->largura;
+	printf("Média: %.6f\n", average);
 
 	salvaImagem1C(img, "teste.bmp");
 }
