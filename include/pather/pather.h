@@ -10,6 +10,7 @@
 
 /* Project Headers */
 #include <pather/imagem.h>
+#include <stdint.h>
 
 /* Guards */
 #ifndef _PATHER_PATHER_H
@@ -30,9 +31,10 @@ typedef struct
 /*============================================================================*/
 /* Função central do trabalho. */
 
-void filter(Imagem1C *img, Imagem1C *dest);
-void probabilistic_binarization (Imagem1C* img);
 int encontraCaminho (Imagem1C* img, Coordenada** caminho);
+void filter(Imagem1C *img, Imagem1C *dest);
+unsigned char ** get_neighbors(unsigned char **dados, uint32_t y, uint32_t x);
+int32_t convulution(unsigned char **base, int mask[3][3], int degree);
 
 /*============================================================================*/
 

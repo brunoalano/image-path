@@ -13,38 +13,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 
 /* File Header */
 #include <pather/pather.h>
 #include <pather/imagem.h>
-
-/* Define the Threshold */
-#define THRESHOLD 127
-#define THRESHOLD_AMPLITUDE 10
-
-/* Macro for evaluate true if bigger than zero */
-#define BIGGER_THEN_ZERO(X) ( (X) > (0) ? (1) : (0) )
-
-void depth_first_search(Imagem1C *img, int8_t steps[img->altura][img->largura], int32_t x, int32_t y, int label)
-{
-	/* Base */
-	if ( x < 0 || x == img->altura ) return;
-	if ( y < 0 || y == img->largura ) return;
-	if ( steps[x][y] != 0 || img->dados[x][y] != 0 ) return;
-	
-	/* Definimos a posição atual */
-	steps[x][y] = label;
-	
-	/* Atuamos nos vizinhos */
-	depth_first_search(img, steps, x - 1, y - 1, label);
-	depth_first_search(img, steps, x - 1, y, label);
-	depth_first_search(img, steps, x - 1, y + 1, label);
-	depth_first_search(img, steps, x, y - 1, label);
-	depth_first_search(img, steps, x, y + 1, label);
-	depth_first_search(img, steps, x + 1, y - 1, label);
-	depth_first_search(img, steps, x + 1, y, label);
-	depth_first_search(img, steps, x + 1, y + 1, label);
-}
 
 /**
  * Menor Caminho na Imagem
@@ -62,36 +35,47 @@ void depth_first_search(Imagem1C *img, int8_t steps[img->altura][img->largura], 
 int encontraCaminho (Imagem1C* img, Coordenada** caminho)
 {
 	/* Store the destination image */
-	Imagem1C *dest = (Imagem1C *)malloc(sizeof(Imagem1C *));
+	Imagem1C *filtrada = (Imagem1C *)malloc(sizeof(Imagem1C *));
 
 	/* Fitramos a Imagem */
-	filter(img, dest);
-
-	/* Transformamos em binária (preto/branco) */
-	probabilistic_binarization(img);
-	salvaImagem1C (img, "hello.bmp");
-
-	/* Criamos uma matriz auxiliar contendo os possíveis caminhos */
-	int8_t steps[img->altura][img->largura];
-	for (int i = 0; i < img->altura; ++i) 
-    	for (int j = 0; j < img->largura; ++j) 
-    		steps[i][j] = 0;
-
-	// int label_value = 1;
- //  	for (int i = 0; i < img->altura; ++i) 
- //    	for (int j = 0; j < img->largura; ++j) 
- //    		if (steps[i][j] != -1 && img->dados[i][j] == 0)
- //    			depth_first_search(img, steps, i, j, label_value++);
-
- //    for (int i = 0; i < img->altura; ++i) 
- //    {
- //    	for (int j = 0; j < img->largura; ++j) 
- //    		printf("%3d ", steps[i][j]);
- //    	printf("\n");
- //    }
+	filter(img, filtrada);
 
 	/* Return the number of steps */
 	return 10;
+}
+
+/**
+ * Print a Matrix
+ *
+ * Função básica para imprimir matrizes y * x na
+ * saída de console.
+ */
+void print_matrix(unsigned char **m, uint32_t y, uint32_t x)
+{
+	for (int i = 0; i < y; i++)
+	{
+		for (int z = 0; z < x; z++)
+			printf("%3d ", (int)m[i][z]);
+		printf("\n");
+	}
+	printf("\n\n\n");
+}
+
+/**
+ * Algoritmo de Convulação
+ *
+ * Esta seção realiza a convulução de uma dada matriz
+ * através de superposição
+ */
+int32_t convulution(unsigned char **base, int mask[3][3], int degree)
+{
+	int32_t sum = 0;
+
+	for (int y = 0; y < degree; y++)
+		for (int x = 0; x < degree; x++)
+			sum += base[y][x] * mask[y][x];
+
+	return sum;
 }
 
 /**
@@ -102,95 +86,87 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
  */
 void filter(Imagem1C *img, Imagem1C *dest)
 {
+	/*
+	 * Pior caso da máscara Y:
+	   	0   0   0
+	   	0   0   0
+	 	255 255 255
+	 */
 	/* Vertical Mask */
 	int mask_y[3][3] = {
 		{ -1, -2, -1 },
 		{  0,  0,  0 },
 		{  1,  2,  1 },
 	};
+	int mask_y_max_value = 1020;
+	int mask_y_min_value = -1020;
 
+	/*
+	 * Pior caso da máscara X:
+	   	0   0   255
+	   	0   0   255
+	 	0   0   255
+	 */
 	/* Horizontal Mask */
 	int mask_x[3][3] = {
 		{ -1,  0,  1 },
 		{ -2,  0,  2 },
 		{ -1,  0,  1 }
 	};
+	int mask_x_max_value = 1020;
+	int mask_x_min_value = -1020;
+
+	/* Pixel Neighbors */
+	unsigned char ** pixel_neighbors;
+
+	/* Iterate over height + 1 to height - 1 */
+	for (int y = 1; y < img->altura - 1; y++)
+	{
+		for (int x = 1; x < img->largura - 1; x++)
+		{
+			/* Matrix of 3x3 with neighbors */
+			pixel_neighbors = get_neighbors(img->dados, y, x);
+
+			/* Apply the masks */
+			int32_t result_mask_y = convulution(pixel_neighbors, mask_y, 3);
+			int32_t result_mask_x = convulution(pixel_neighbors, mask_x, 3);
+
+			/* Values in range [0 .. 1] */
+			float normalized_y = (float)(result_mask_y - mask_y_min_value) / (mask_y_max_value - mask_y_min_value);
+			float normalized_x = (float)(result_mask_x - mask_x_min_value) / (mask_x_max_value - mask_x_min_value);
+			printf("Y = %.6f\tX = %.6f\n", normalized_y, normalized_x);
+
+			/* Get the difference */
+			double value = sqrt((normalized_y * normalized_y) + (normalized_x * normalized_x));
+			printf("O resultado é: %lf\n\n", value);
+
+			/* Free the memory block */
+			free(pixel_neighbors);
+		}
+	}
 }
 
 /**
- * Binarização baseada em Probabilidade
+ * Get Neightboors
  *
- * Checamos os 8 cantos referenets à posição do pixel para
- * classificarmos se devemos classificar como preto ou
- * branco caso esteja próximo do limiar.
- * 
- * @param img pointer to struct
+ * Retorna uma matriz de 3x3 contendo os vizinhos de uma
+ * determinada coordenada de uma determinada matriz.
  */
-void probabilistic_binarization(Imagem1C* img) {
-	/* Store the current color */
-	uint8_t color;
-	uint32_t sum;
-	uint8_t numbers_of_neighbors = 0;
+unsigned char ** get_neighbors(unsigned char **dados, uint32_t coordinate_y, uint32_t coordinate_x)
+{
+	/* Create a matrix */
+	unsigned char ** neighbors;
 
-	/* Iterate over height */
-	for (int h = 0; h < img->altura; h++)
-	{
-		/* Iterate over width */
-		for (int w = 0; w < img->largura; w++)
-		{
-			/* Current color in a 8-bit format */
-			color = img->dados[h][w];
+	/* Allocate memory */
+	neighbors = (unsigned char **)malloc(3 * sizeof(unsigned char *));
+	for (int i = 0; i < 3; i++)
+		neighbors[i] = (unsigned char *)malloc(3 * sizeof(unsigned char));
 
-			/* Find the current color */
-			if ( color + THRESHOLD_AMPLITUDE < THRESHOLD && color - THRESHOLD_AMPLITUDE < THRESHOLD )
-				img->dados[h][w] = 0;
-			else {
-				/*
-				 * Check the neighboors looking the average
-				 * of the area of bit.
-				 */
-				
-				/* Store the sum of neighbors */
-				sum = 0;
+	/* Parse the matrix */
+	for (int y = -1; y < 2; y++)
+		for (int x = -1; x < 2; x++)
+			neighbors[y + 1][x + 1] = dados[coordinate_y + y][coordinate_x + x];
 
-				if ( h > 0 ) {
-					sum += img->dados[h-1][w];
-					numbers_of_neighbors++;
-					if ( w > 0 ) {
-						sum += img->dados[h-1][w-1];
-						sum += img->dados[h][w-1];
-						numbers_of_neighbors += 2;
-					}
-					if ( w < img->largura - 1) {
-						sum += img->dados[h-1][w+1];
-						sum += img->dados[h][w+1];
-						numbers_of_neighbors += 2;
-					}
-				}
-
-				if ( h < img->altura - 1 )
-				{
-					sum += img->dados[h+1][w];
-					numbers_of_neighbors++;
-
-					if ( w > 0 )
-					{
-						sum += img->dados[h+1][w-1];
-						numbers_of_neighbors++;
-					}
-					if ( w < img->largura - 1 ) {
-						sum += img->dados[h+1][w+1];
-						numbers_of_neighbors++;
-					}
-				}
-				
-				sum += img->dados[h][w];
-				sum /= numbers_of_neighbors + 1;
-				if ( sum + THRESHOLD_AMPLITUDE > THRESHOLD && sum - THRESHOLD_AMPLITUDE > THRESHOLD )
-					img->dados[h][w] = 255;
-				else
-					img->dados[h][w] = 0;
-			}
-		}
-	}
+	/* Return the pointer to neighbors */
+	return neighbors;
 }

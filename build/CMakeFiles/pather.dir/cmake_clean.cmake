@@ -1,4 +1,4 @@
-file(REMOVE_RECURSE
+FILE(REMOVE_RECURSE
   "CMakeFiles/pather.dir/src/main.c.o"
   "CMakeFiles/pather.dir/src/imagem.c.o"
   "CMakeFiles/pather.dir/src/pather.c.o"
@@ -7,6 +7,6 @@ file(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang C)
-  include(CMakeFiles/pather.dir/cmake_clean_${lang}.cmake OPTIONAL)
-endforeach()
+FOREACH(lang C)
+  INCLUDE(CMakeFiles/pather.dir/cmake_clean_${lang}.cmake OPTIONAL)
+ENDFOREACH(lang)

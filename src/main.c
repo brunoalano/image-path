@@ -47,7 +47,7 @@ int main(void)
 
 	/* Store the image */
 	Imagem1C* img;
-	img = abreImagem1C ("../img/teste1.bmp");
+	img = abreImagem1C ("../img/basico.bmp");
 	if (!img) {
 		printf("Nao foi possivel abrir o arquivo\n");
 		return 1;

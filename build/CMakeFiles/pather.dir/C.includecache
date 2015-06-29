@@ -11,26 +11,10 @@
 ../include/pather/pather.h
 pather/imagem.h
 -
-
-/home/todos/alunos/ct/a1721119/projetos/image-path/src/imagem.c
-stdlib.h
--
-stdio.h
--
-math.h
--
-pather/imagem.h
+stdint.h
 -
 
-/home/todos/alunos/ct/a1721119/projetos/image-path/src/main.c
-stdio.h
--
-stdlib.h
--
-pather/pather.h
--
-
-/home/todos/alunos/ct/a1721119/projetos/image-path/src/pather.c
+/home/todos/alunos/ct/a1721119/image-path/src/pather.c
 stdio.h
 -
 stdlib.h
@@ -38,6 +22,8 @@ stdlib.h
 stdint.h
 -
 stdbool.h
+-
+math.h
 -
 pather/pather.h
 -

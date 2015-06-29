@@ -1,1 +1,1 @@
-/home/todos/alunos/ct/a1721119/projetos/image-path/build/CMakeFiles/pather.dir
+/home/todos/alunos/ct/a1721119/image-path/build/CMakeFiles/pather.dir
