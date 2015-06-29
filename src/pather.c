@@ -98,8 +98,6 @@ void filter(Imagem1C *img, Imagem1C *dest)
 		{  0,  0,  0 },
 		{  1,  2,  1 },
 	};
-	int mask_y_max_value = 1020;
-	int mask_y_min_value = -1020;
 
 	/*
 	 * Pior caso da máscara X:
@@ -113,8 +111,6 @@ void filter(Imagem1C *img, Imagem1C *dest)
 		{ -2,  0,  2 },
 		{ -1,  0,  1 }
 	};
-	int mask_x_max_value = 1020;
-	int mask_x_min_value = -1020;
 
 	/* Pixel Neighbors */
 	unsigned char ** pixel_neighbors;
@@ -132,18 +128,20 @@ void filter(Imagem1C *img, Imagem1C *dest)
 			int32_t result_mask_x = convulution(pixel_neighbors, mask_x, 3);
 
 			/* Values in range [0 .. 1] */
-			float normalized_y = (float)(result_mask_y - mask_y_min_value) / (mask_y_max_value - mask_y_min_value);
-			float normalized_x = (float)(result_mask_x - mask_x_min_value) / (mask_x_max_value - mask_x_min_value);
-			printf("Y = %.6f\tX = %.6f\n", normalized_y, normalized_x);
-
-			/* Get the difference */
+			float normalized_y = (((float)result_mask_y + 1024.0f)) / 2048.0f;
+			float normalized_x = (((float)result_mask_x + 1024.0f)) / 2048.0f;
 			double value = sqrt((normalized_y * normalized_y) + (normalized_x * normalized_x));
-			printf("O resultado é: %lf\n\n", value);
+			if ( value > 1 )
+				value = 1.0;
+
+			img->dados[y][x] = value > 0.5 ? 255 : 0;
 
 			/* Free the memory block */
 			free(pixel_neighbors);
 		}
 	}
+
+	salvaImagem1C(img, "teste.bmp");
 }
 
 /**
