@@ -40,6 +40,24 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
 	/* Fitramos a Imagem */
 	filter(img, filtrada);
 
+  /* Calcula o histograma da imagem usando o algorithmo de Otsu */
+  uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
+  generate_histogram(img, histograma);
+
+  /* Calcula o valor do threshold */
+  uint8_t threshold = otsu_threshold(img, histograma);
+  
+  /* Binariza a imagem baseando-se no valor de threshold predito */
+  for (int y = 0; y < img->altura; y++)
+  {
+    for (int x = 0; x < img->largura; x++)
+    {
+      binarization(img->dados, y, x, 145);
+    }
+  }
+
+  salvaImagem1C(img, "teste.bmp");
+
 	/* Return the number of steps */
 	return 10;
 }
@@ -126,7 +144,7 @@ void filter(Imagem1C *img, Imagem1C *dest)
 			float result_mask_y = convulution(pixel_neighbors, mask_y, 3);
 			float result_mask_x = convulution(pixel_neighbors, mask_x, 3);
 
-			/* Values in range [0 .. 1] */
+			/* Values in range [0 .. 255] */
       float normalized_y = normalize(result_mask_y, -1020.0f, 1020.0f, 0, 255);
 			float normalized_x = normalize(result_mask_x, -1020.0f, 1020.0f, 0, 255);
 			double value = sqrt((normalized_y * normalized_y) + (normalized_x * normalized_x));
@@ -190,4 +208,90 @@ unsigned char ** get_neighbors(unsigned char **dados, uint32_t coordinate_y, uin
 
 	/* Return the pointer to neighbors */
 	return neighbors;
+}
+
+/**
+ * Binazarization based on Neighbors Average
+ *
+ * O processo de binarização é aplicado depois da utilização
+ * da remoção de ruídos pelo filtros de Sobel.
+ */
+void binarization(unsigned char **dados, uint32_t coordinate_y, uint32_t coordinate_x, uint8_t threshold)
+{
+  if ( dados[coordinate_y][coordinate_x] > threshold )
+    dados[coordinate_y][coordinate_x] = 255;
+  else
+    dados[coordinate_y][coordinate_x] = 0;
+}
+
+/**
+ * Graylevel Histogram Generation
+ *
+ * Criamos um histograma contendo os níveis em escala cinza
+ * na imagem para sabermos uma distribuição de probabilidade
+ * do valor de `threshold` ideal para a imagem
+ */
+void generate_histogram(Imagem1C *img, uint8_t *histogram)
+{
+  /* Fill with zeros */
+  for (int i = 0; i < 256; i++) histogram[i] = 0;
+  for (int y = 0; y < img->altura; y++)
+    for (int x = 0; x < img->largura; x++)
+      histogram[ img->dados[y][x] ]++;
+}
+
+/**
+ * Calculates the Density Probability with Otsu Algorithm
+ *
+ * Esta função irá retornar o valor do threshold que deve ser
+ * aplicado sob a imagem atráves da densidade da distribuição
+ * de níveis de cinza na imagem.
+ */
+uint8_t otsu_threshold(Imagem1C *img, uint8_t *histogram)
+{
+  /* Probability of each density */
+  double probability[256], omega[256];
+
+  /* Value for separation */
+  double myu[256];
+
+  /* Inter-class variance */
+  double max_sigma, sigma[256];
+
+  /* Store the predict of threshold */
+  uint8_t threshold;
+
+  /* Distribution */
+  for (int i = 0; i < 256; i++)
+    probability[i] = (double)histogram[i] / (img->altura * img->largura);
+
+  /* Omega & MYU */
+  omega[0] = probability[0];
+  myu[0] = 0.0;
+  for (int i = 1; i < 256; i++)
+  {
+    omega[i] = omega[i - 1] + probability[i];
+    myu[i] = myu[i - 1] + (i * probability[i]);
+  }
+
+  /* Maximization of Sigma Value */
+  threshold = 0;
+  max_sigma = 0.0;
+  for ( int i = 0; i < 256; i++ )
+  {
+    if ( omega[i] != 0.0 && omega[i] != 1.0 )
+      sigma[i] = pow( myu[255] * omega[i] - myu[i], 2) / ( omega[i] * (1.0 - omega[i]));
+    else
+      sigma[i] = 0.0;
+
+    /* Check if its the optima of Sigma */
+    if (sigma[i] > max_sigma)
+    {
+      max_sigma = sigma[i];
+      threshold = i;
+    }
+  }
+
+  /* Return the prediction */
+  return threshold;
 }
