@@ -34,7 +34,8 @@ typedef struct
 int encontraCaminho (Imagem1C* img, Coordenada** caminho);
 void filter(Imagem1C *img, Imagem1C *dest);
 unsigned char ** get_neighbors(unsigned char **dados, uint32_t y, uint32_t x);
-int32_t convulution(unsigned char **base, int mask[3][3], int degree);
+float convulution(unsigned char **base, int mask[3][3], int degree);
+float normalize(float value, float base_min, float base_max, float destination_min, float destination_max);
 
 /*============================================================================*/
 

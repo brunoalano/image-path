@@ -14,7 +14,25 @@ pather/imagem.h
 stdint.h
 -
 
-/home/todos/alunos/ct/a1721119/image-path/src/pather.c
+/Users/brunoalano/projetos/utfpr/image-path/src/imagem.c
+stdlib.h
+-
+stdio.h
+-
+math.h
+-
+pather/imagem.h
+-
+
+/Users/brunoalano/projetos/utfpr/image-path/src/main.c
+stdio.h
+-
+stdlib.h
+-
+pather/pather.h
+-
+
+/Users/brunoalano/projetos/utfpr/image-path/src/pather.c
 stdio.h
 -
 stdlib.h

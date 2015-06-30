@@ -67,14 +67,13 @@ void print_matrix(unsigned char **m, uint32_t y, uint32_t x)
  * Esta seção realiza a convulução de uma dada matriz
  * através de superposição
  */
-int32_t convulution(unsigned char **base, int mask[3][3], int degree)
+float convulution(unsigned char **base, int mask[3][3], int degree)
 {
-	int32_t sum = 0;
+	float sum = 0;
 
 	for (int y = 0; y < degree; y++)
 		for (int x = 0; x < degree; x++)
 			sum += base[y][x] * mask[y][x];
-
 	return sum;
 }
 
@@ -90,7 +89,7 @@ void filter(Imagem1C *img, Imagem1C *dest)
 	 * Pior caso da máscara Y:
 	   	0   0   0
 	   	0   0   0
-	 	255 255 255
+	 	  255 255 255
 	 */
 	/* Vertical Mask */
 	int mask_y[3][3] = {
@@ -103,7 +102,7 @@ void filter(Imagem1C *img, Imagem1C *dest)
 	 * Pior caso da máscara X:
 	   	0   0   255
 	   	0   0   255
-	 	0   0   255
+	 	  0   0   255
 	 */
 	/* Horizontal Mask */
 	int mask_x[3][3] = {
@@ -115,8 +114,6 @@ void filter(Imagem1C *img, Imagem1C *dest)
 	/* Pixel Neighbors */
 	unsigned char ** pixel_neighbors;
 
-	float average = 0;
-
 	/* Iterate over height + 1 to height - 1 */
 	for (int y = 1; y < img->altura - 1; y++)
 	{
@@ -126,27 +123,48 @@ void filter(Imagem1C *img, Imagem1C *dest)
 			pixel_neighbors = get_neighbors(img->dados, y, x);
 
 			/* Apply the masks */
-			int32_t result_mask_y = convulution(pixel_neighbors, mask_y, 3);
-			int32_t result_mask_x = convulution(pixel_neighbors, mask_x, 3);
+			float result_mask_y = convulution(pixel_neighbors, mask_y, 3);
+			float result_mask_x = convulution(pixel_neighbors, mask_x, 3);
 
 			/* Values in range [0 .. 1] */
-			float normalized_y = (((float)result_mask_y + 1024.0f)) / 2048.0f;
-			float normalized_x = (((float)result_mask_x + 1024.0f)) / 2048.0f;
+      float normalized_y = normalize(result_mask_y, -1020.0f, 1020.0f, 0, 255);
+			float normalized_x = normalize(result_mask_x, -1020.0f, 1020.0f, 0, 255);
 			double value = sqrt((normalized_y * normalized_y) + (normalized_x * normalized_x));
-			if ( value > 1 )
-				value = 1.0;
 
-			average += value;
+			/* Apply the value into our matrix */
+      if ( value > 255.0 )
+        img->dados[y][x] = 255;
+      else if ( value < 0 )
+        img->dados[y][x] = 0;
+      else
+        img->dados[y][x] = ceil(value);
 
 			/* Free the memory block */
 			free(pixel_neighbors);
 		}
 	}
 
-	average /= img->altura * img->largura;
-	printf("Média: %.6f\n", average);
-
 	salvaImagem1C(img, "teste.bmp");
+}
+
+
+/**
+ * Normalize a Value into a Range
+ *
+ * If you have a range in value [A, B] and want to scale
+ * into a range [C, D].
+ * 
+ * @param  value           value to scale
+ * @param  base_min        The minimum of our old range (A)
+ * @param  base_max        The maximum of our old range (B)
+ * @param  destination_min The minimum of our new range (C)
+ * @param  destination_max The maximum of our new range (D)
+ * @return                 Scaled value in range [C, D]
+ */
+float normalize(float value, float base_min, float base_max, float destination_min, float destination_max)
+{
+  return ( destination_min * ( 1 - ( (value - base_min) / (base_max - base_min) )) \
+          + destination_max * ( (value - base_min) / (base_max - base_min) ) );
 }
 
 /**
