@@ -34,29 +34,42 @@
  */
 int encontraCaminho (Imagem1C* img, Coordenada** caminho)
 {
-	/* Store the destination image */
-	Imagem1C *filtrada = (Imagem1C *)malloc(sizeof(Imagem1C *));
+  /* Cria a imagem filtrada */
+  Imagem1C *filtrada = (Imagem1C *)malloc(sizeof(Imagem1C));
+  filtrada->largura = img->largura;
+  filtrada->altura = img->altura;
+  filtrada->dados = (unsigned char**) malloc (sizeof (unsigned char*) * filtrada->altura);
+  for (int i = 0; i < filtrada->altura; i++)
+    filtrada->dados[i] = (unsigned char*)malloc(sizeof (unsigned char) * filtrada->largura);
+
+  for (int y = 0; y < img->altura; y++)
+    for (int x = 0; x < img->largura; x++)
+      filtrada->dados[y][x] = img->dados[y][x];
 
 	/* Fitramos a Imagem */
 	filter(img, filtrada);
 
   /* Calcula o histograma da imagem usando o algorithmo de Otsu */
-  uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
-  generate_histogram(img, histograma);
+  // uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
+  // generate_histogram(img, histograma);
 
-  /* Calcula o valor do threshold */
-  uint8_t threshold = otsu_threshold(img, histograma);
+  // for (int i = 0; i < 256; i++)
+  //   printf("%d ", histograma[i]);
+  // printf("\n");
+
+  // /* Calcula o valor do threshold */
+  // uint8_t threshold = otsu_threshold(img, histograma);
   
   /* Binariza a imagem baseando-se no valor de threshold predito */
-  for (int y = 0; y < img->altura; y++)
-  {
-    for (int x = 0; x < img->largura; x++)
-    {
-      binarization(img->dados, y, x, 145);
-    }
-  }
+  // for (int y = 0; y < img->altura; y++)
+  // {
+  //   for (int x = 0; x < img->largura; x++)
+  //   {
+  //     binarization(img->dados, y, x, threshold);
+  //   }
+  // }
 
-  salvaImagem1C(img, "teste.bmp");
+  salvaImagem1C(filtrada, "teste.bmp");
 
 	/* Return the number of steps */
 	return 10;
@@ -138,7 +151,7 @@ void filter(Imagem1C *img, Imagem1C *dest)
 		for (int x = 1; x < img->largura - 1; x++)
 		{
 			/* Matrix of 3x3 with neighbors */
-			pixel_neighbors = get_neighbors(img->dados, y, x);
+			pixel_neighbors = get_neighbors(dest->dados, y, x);
 
 			/* Apply the masks */
 			float result_mask_y = convulution(pixel_neighbors, mask_y, 3);
@@ -151,18 +164,16 @@ void filter(Imagem1C *img, Imagem1C *dest)
 
 			/* Apply the value into our matrix */
       if ( value > 255.0 )
-        img->dados[y][x] = 255;
+        dest->dados[y][x] = 255;
       else if ( value < 0 )
-        img->dados[y][x] = 0;
+        dest->dados[y][x] = 0;
       else
-        img->dados[y][x] = ceil(value);
+      dest->dados[y][x] = ceil(value);
 
 			/* Free the memory block */
 			free(pixel_neighbors);
 		}
 	}
-
-	salvaImagem1C(img, "teste.bmp");
 }
 
 
