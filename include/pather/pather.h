@@ -30,7 +30,7 @@ typedef struct
 
 /*============================================================================*/
 /* Função central do trabalho. */
-
+void print_matrix(uint8_t **m, uint32_t y, uint32_t x);
 int encontraCaminho (Imagem1C* img, Coordenada** caminho);
 void filter(Imagem1C *img, Imagem1C *dest);
 unsigned char ** get_neighbors(unsigned char **dados, uint32_t y, uint32_t x);
@@ -39,6 +39,8 @@ float normalize(float value, float base_min, float base_max, float destination_m
 void binarization(unsigned char **dados, uint32_t coordinate_y, uint32_t coordinate_x, uint8_t threshold);
 void generate_histogram(Imagem1C *img, uint8_t *histogram);
 uint8_t otsu_threshold(Imagem1C *img, uint8_t *histogram);
+void depth_first_search(Imagem1C *img, int8_t steps[img->altura][img->largura], int32_t x, int32_t y, int label);
+void binariza_tadashi(Imagem1C* img, Imagem1C* dest);
 
 /*============================================================================*/
 

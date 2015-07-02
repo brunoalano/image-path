@@ -46,27 +46,102 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
     for (int x = 0; x < img->largura; x++)
       filtrada->dados[y][x] = img->dados[y][x];
 
-  /* Fitramos a Imagem */
-  filter(img, filtrada);
+  binariza_tadashi(img, filtrada);
 
-  /* Calcula o histograma da imagem usando o algorithmo de Otsu */
-  uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
-  generate_histogram(img, histograma);
+
+  for (int y = 0; y < filtrada->altura; y++)
+    for (int x = 0; x < filtrada->largura; x++)
+      img->dados[y][x] = filtrada->dados[y][x];
+
   
-  /* Calcula o threshold */
-  uint8_t threshold = otsu_threshold(filtrada, histograma);
-
-  /* Filtro da Média baseando-se no Threshold */
   for (int y = 1; y < filtrada->altura - 1; y++)
+  {
     for (int x = 1; x < filtrada->largura - 1; x++)
-      binarization(filtrada->dados, y, x, threshold - 12);
+    {
+      if ( filtrada->dados[y][x] == 0 ) break;
+      printf("%s\n", "Printando neighbors manual");
+      for (int i = -1; i < 2; i++)
+      {
+        for (int j = -1; j < 2; j++)
+        {
+          printf("%d ", filtrada->dados[y + i][x + j]);
+        }
+        printf("\n");
+      }
 
-  img = filtrada;
-  // salvaImagem1C(filtrada, "teste.bmp");
+      printf("%s\n", "Printando negibors funcao");
+      unsigned char ** neighbors = get_neighbors(filtrada->dados, y, x);
+      print_matrix(neighbors, 3, 3);
+    }
+  }
+
+  
+
+
+
+  /* Fitramos a Imagem */
+  // filter(img, filtrada);
+
+  // /* Calcula o histograma da imagem usando o algorithmo de Otsu */
+  // uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
+  // generate_histogram(filtrada, histograma);
+
+  // /* Calcula a probabilidade de dado nível de cinza */
+  // uint8_t valor_maximo_escala_cinza = histograma[0];
+  // uint8_t valor_minimo_escala_cinza = histograma[0];
+  // for (int i = 1; i < 256; i++)
+  //   if ( histograma[i] > valor_maximo_escala_cinza )
+  //     valor_maximo_escala_cinza = histograma[i];
+  //   else if ( histograma[i] < valor_minimo_escala_cinza )
+  //     valor_minimo_escala_cinza = histograma[i];
+
+  // //for (int y = 0; y < img->altura; y++)
+  // //  for (int x = 0; x < img->largura; x++)
+  // //    filtrada->dados[y][x] = (unsigned char)normalize((float)filtrada->dados[y][x], 0.0, 255.0, (float)valor_minimo_escala_cinza, (float)valor_maximo_escala_cinza);
+  
+  // /* Calcula o threshold */
+  // uint8_t threshold = otsu_threshold(filtrada, histograma);
+
+  // /* Filtro da Média baseando-se no Threshold */
+  // for (int y = 1; y < filtrada->altura - 1; y++)
+  //   for (int x = 1; x < filtrada->largura - 1; x++)
+  //     binarization(filtrada->dados, y, x, threshold - 39);
+
+  //binariza_tadashi(filtrada);
+
+
+  /* Save the image for debug purposes */
+  salvaImagem1C(filtrada, "teste.bmp");
 
   /* Return the number of steps */
   return 0;
 }
+
+void binariza_tadashi(Imagem1C* img, Imagem1C* dest){
+  int i, j, limiar=0;
+
+  for (i = 0; i < img->altura; i++){
+    for (j = 0; j < img->largura; j++){
+      limiar+=img->dados[i][j];
+    }
+  }
+
+  limiar=(limiar/(img->altura*img->largura));
+  printf("%d\n",limiar);
+  if (limiar>=130)
+  limiar=limiar-47;
+  else
+  limiar=limiar-35;
+  printf("%d\n",limiar);
+  for (i = 0; i < img->altura; i++){
+  for (j = 0; j < img->largura; j++){
+  if (limiar<img->dados[i][j])
+  dest->dados[i][j]=0;
+  else
+  dest->dados[i][j]=255;
+  }
+  }
+} 
 
 /**
  * Print a Matrix
@@ -74,7 +149,7 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
  * Função básica para imprimir matrizes y * x na
  * saída de console.
  */
-void print_matrix(unsigned char **m, uint32_t y, uint32_t x)
+void print_matrix(uint8_t **m, uint32_t y, uint32_t x)
 {
 	for (int i = 0; i < y; i++)
 	{
@@ -229,9 +304,9 @@ void binarization(unsigned char **dados, uint32_t coordinate_y, uint32_t coordin
       average += neighbors[i][j] / 9;
   // printf("dado: %d\n", dados[coordinate_y][coordinate_x]);
   if ( dados[coordinate_y][coordinate_x] > threshold )
-    dados[coordinate_y][coordinate_x] = 255;
-  else
     dados[coordinate_y][coordinate_x] = 0;
+  else
+    dados[coordinate_y][coordinate_x] = 255;
 }
 
 /**
