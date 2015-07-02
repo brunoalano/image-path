@@ -142,38 +142,51 @@ void filter(Imagem1C *img, Imagem1C *dest)
 		{ -1,  0,  1 }
 	};
 
-	/* Pixel Neighbors */
-	unsigned char ** pixel_neighbors;
+  /* Pixel Neighbors */
+  unsigned char ** pixel_neighbors;
+
+  /* The minimum and maximum of image */
+  double minimum = 2048.0, maximum = -2048.0;
+  double pixel_value;
 
 	/* Iterate over height + 1 to height - 1 */
 	for (int y = 1; y < img->altura - 1; y++)
 	{
 		for (int x = 1; x < img->largura - 1; x++)
 		{
-			/* Matrix of 3x3 with neighbors */
-			pixel_neighbors = get_neighbors(dest->dados, y, x);
+      /* Matrix of 3x3 with neighbors */
+      pixel_neighbors = get_neighbors(img->dados, y, x);
 
-			/* Apply the masks */
-			float result_mask_y = convulution(pixel_neighbors, mask_y, 3);
-			float result_mask_x = convulution(pixel_neighbors, mask_x, 3);
+      /* Start the pixel value */
+			pixel_value = 0.0;
 
-			/* Values in range [0 .. 255] */
-      float normalized_y = normalize(result_mask_y, -1020.0f, 1020.0f, 0, 255);
-			float normalized_x = normalize(result_mask_x, -1020.0f, 1020.0f, 0, 255);
-			double value = sqrt((normalized_y * normalized_y) + (normalized_x * normalized_x));
+      for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+          pixel_value += mask_x[i][j] * img->dados[y + (i-1)][x + (j-1)];
 
-			/* Apply the value into our matrix */
-      if ( value > 255.0 )
-        dest->dados[y][x] = 255;
-      else if ( value < 0 )
-        dest->dados[y][x] = 0;
-      else
-      dest->dados[y][x] = ceil(value);
-
-			/* Free the memory block */
-			free(pixel_neighbors);
+      if ( pixel_value < minimum ) minimum = pixel_value;
+      if ( pixel_value > maximum ) maximum = pixel_value;
 		}
 	}
+
+  for (int y = 1; y < img->altura - 1; y++)
+  {
+    for (int x = 1; x < img->largura - 1; x++)
+    {
+      /* Matrix of 3x3 with neighbors */
+      pixel_neighbors = get_neighbors(img->dados, y, x);
+
+      /* Start the pixel value */
+      pixel_value = 0.0;
+
+      for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+          pixel_value += mask_x[i][j] * img->dados[y + (i-1)][x + (j-1)];
+
+      pixel_value = 255 * (pixel_value - minimum) / (maximum - minimum);
+      dest->dados[y][x] = (unsigned char)pixel_value;
+    }
+  }
 }
 
 
