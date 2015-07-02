@@ -46,33 +46,26 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
     for (int x = 0; x < img->largura; x++)
       filtrada->dados[y][x] = img->dados[y][x];
 
-	/* Fitramos a Imagem */
-	filter(img, filtrada);
+  /* Fitramos a Imagem */
+  filter(img, filtrada);
 
   /* Calcula o histograma da imagem usando o algorithmo de Otsu */
-  // uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
-  // generate_histogram(img, histograma);
-
-  // for (int i = 0; i < 256; i++)
-  //   printf("%d ", histograma[i]);
-  // printf("\n");
-
-  // /* Calcula o valor do threshold */
-  // uint8_t threshold = otsu_threshold(img, histograma);
+  uint8_t *histograma = (uint8_t *)malloc(256 * sizeof(uint8_t));
+  generate_histogram(img, histograma);
   
-  /* Binariza a imagem baseando-se no valor de threshold predito */
-  // for (int y = 0; y < img->altura; y++)
-  // {
-  //   for (int x = 0; x < img->largura; x++)
-  //   {
-  //     binarization(img->dados, y, x, threshold);
-  //   }
-  // }
+  /* Calcula o threshold */
+  uint8_t threshold = otsu_threshold(filtrada, histograma);
 
-  salvaImagem1C(filtrada, "teste.bmp");
+  /* Filtro da Média baseando-se no Threshold */
+  for (int y = 1; y < filtrada->altura - 1; y++)
+    for (int x = 1; x < filtrada->largura - 1; x++)
+      binarization(filtrada->dados, y, x, threshold - 12);
 
-	/* Return the number of steps */
-	return 10;
+  img = filtrada;
+  // salvaImagem1C(filtrada, "teste.bmp");
+
+  /* Return the number of steps */
+  return 0;
 }
 
 /**
@@ -163,11 +156,6 @@ void filter(Imagem1C *img, Imagem1C *dest)
       double value = sqrt((normalized_y * normalized_y) + (normalized_x * normalized_x));
 
       /* Apply the value into our matrix */
-      if ( value > 255.0 )
-        dest->dados[y][x] = 255;
-      else if ( value < 0 )
-        dest->dados[y][x] = 0;
-      else
       dest->dados[y][x] = ceil(value);
 
       /* Free the memory block */
@@ -228,6 +216,18 @@ unsigned char ** get_neighbors(unsigned char **dados, uint32_t coordinate_y, uin
  */
 void binarization(unsigned char **dados, uint32_t coordinate_y, uint32_t coordinate_x, uint8_t threshold)
 {
+  /* Get Neighbors */
+  unsigned char ** neighbors;
+  neighbors = get_neighbors(dados, coordinate_y, coordinate_x);
+
+  /* Store average */
+  float average = 0.0f;
+
+  /* Average */
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 3; j++)
+      average += neighbors[i][j] / 9;
+  // printf("dado: %d\n", dados[coordinate_y][coordinate_x]);
   if ( dados[coordinate_y][coordinate_x] > threshold )
     dados[coordinate_y][coordinate_x] = 255;
   else

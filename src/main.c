@@ -40,83 +40,65 @@ long testaCaminho (Coordenada* caminho, int n, Imagem1C* dt);
 
 /*============================================================================*/
 
-int main(void)
+
+
+int main ()
 {
-	/* Store the steps */
-	Coordenada* caminho; 
+    int i, n_coordenadas;
+    Imagem1C* img; /* A imagem de entrada. */
+    Imagem1C* img_dt; /* Matriz da transformada de distância. */
+    Imagem3C* out; /* A imagem de saída. */
+    Coordenada* caminho; /* O caminho descoberto. */
+    char nome_saida [25]; /* String usada para salvar as saídas. */
+    unsigned long score;
+    FILE* out_file; /* Arquivo de saída. */
 
-	/* Store the image */
-	Imagem1C* img;
-	img = abreImagem1C ("../img/TESTE3.BMP");
-	if (!img) {
-		printf("Nao foi possivel abrir o arquivo\n");
-		return 1;
-	}
+    out_file = fopen ("out.txt", "w");
 
-	/* Process the file */
-	int n_coordenadas = encontraCaminho(img, &caminho);
+    for (i = 0; i < N_ARQUIVOS; i++)
+    {
+        img = abreImagem1C (ARQUIVOS [i]);
+        if (!img)
+        {
+            printf ("Nao conseguiu abrir %s\n", ARQUIVOS [i]);
+            return (1);
+        }
 
-	/* Return to operating system */
-	return 0;
+        /* Cria a imagem da transformada de distância. */
+        img_dt = abreImagem1C (ARQUIVOS [i]);
+        criaMatrizDT (img_dt);
+
+        n_coordenadas = encontraCaminho (img, &caminho);
+
+        /* Testa se este caminho é um caminho válido, e calcula o score. */
+        score = testaCaminho (caminho, n_coordenadas, img_dt);
+        fprintf (out_file, "%ld\n", score);
+
+        if (SALVA_SAIDA)
+        {
+            int c;
+            out = abreImagem3C (ARQUIVOS [i]);
+            for (c = 0; c < n_coordenadas; c++)
+            {
+                out->dados [0][caminho [c].y][caminho [c].x] = 255;
+                out->dados [1][caminho [c].y][caminho [c].x] = 0;
+                out->dados [2][caminho [c].y][caminho [c].x] = 0;
+            }
+
+            sprintf (nome_saida, "out%d.bmp", i);
+            salvaImagem3C (out, nome_saida);
+            destroiImagem3C (out);
+        }
+
+        destroiImagem1C (img_dt);
+        destroiImagem1C (img);
+        free (caminho);
+    }
+
+    fclose (out_file);
+
+    return (0);
 }
-
-// int main ()
-// {
-//     int i, n_coordenadas;
-//     Imagem1C* img; /* A imagem de entrada. */
-//     Imagem1C* img_dt; /* Matriz da transformada de distância. */
-//     Imagem3C* out; /* A imagem de saída. */
-//     Coordenada* caminho; /* O caminho descoberto. */
-//     char nome_saida [25]; /* String usada para salvar as saídas. */
-//     unsigned long score;
-//     FILE* out_file; /* Arquivo de saída. */
-
-//     out_file = fopen ("out.txt", "w");
-
-//     for (i = 0; i < N_ARQUIVOS; i++)
-//     {
-//         img = abreImagem1C (ARQUIVOS [i]);
-//         if (!img)
-//         {
-//             printf ("Nao conseguiu abrir %s\n", ARQUIVOS [i]);
-//             return (1);
-//         }
-
-//         /* Cria a imagem da transformada de distância. */
-//         img_dt = abreImagem1C (ARQUIVOS [i]);
-//         criaMatrizDT (img_dt);
-
-//         n_coordenadas = encontraCaminho (img, &caminho);
-
-//         /* Testa se este caminho é um caminho válido, e calcula o score. */
-//         score = testaCaminho (caminho, n_coordenadas, img_dt);
-//         fprintf (out_file, "%ld\n", score);
-
-//         if (SALVA_SAIDA)
-//         {
-//             int c;
-//             out = abreImagem3C (ARQUIVOS [i]);
-//             for (c = 0; c < n_coordenadas; c++)
-//             {
-//                 out->dados [0][caminho [c].y][caminho [c].x] = 255;
-//                 out->dados [1][caminho [c].y][caminho [c].x] = 0;
-//                 out->dados [2][caminho [c].y][caminho [c].x] = 0;
-//             }
-
-//             sprintf (nome_saida, "out%d.bmp", i);
-//             salvaImagem3C (out, nome_saida);
-//             destroiImagem3C (out);
-//         }
-
-//         destroiImagem1C (img_dt);
-//         destroiImagem1C (img);
-//         free (caminho);
-//     }
-
-//     fclose (out_file);
-
-//     return (0);
-// }
 
 /*----------------------------------------------------------------------------*/
 /** Cria uma matriz com a transformada da distância de uma imagem. Para gerar
