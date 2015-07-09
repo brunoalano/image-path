@@ -58,8 +58,22 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
     for (uint32_t j = 1; j < img->largura - 1; j++)
       binarization(img, filtrada, i, j);
 
-  /* Save the image for debug purposes */
-  salvaImagem1C(filtrada, "teste.bmp");
+  /* Binarize the Borders */
+  for (int i = 0; i < img->largura; i++)
+  {
+    filtrada->dados[0][i] = filtrada->dados[0][i] > 110 ? 0 : 255;
+    filtrada->dados[img->altura - 1][i] = filtrada->dados[img->altura - 1][i] > 110 ? 0 : 255;
+  }
+  for (int i = 0; i < img->altura; i++)
+  {
+    filtrada->dados[i][0] = filtrada->dados[i][0] > 110 ? 0 : 255;
+    filtrada->dados[i][img->largura - 1] = filtrada->dados[i][img->largura - 1] > 110 ? 0 : 255;
+  }
+
+  salvaImagem1C(filtrada, "base.bmp");
+
+  /* Clean the process */
+  destroiImagem1C(filtrada);
 
   /* Return the number of steps */
   return 0;
@@ -156,12 +170,14 @@ void image_equalization(Imagem1C *img, uint8_t *hist)
  */
 void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x)
 {
+  /* Store average */
+  float average = 0.0f;
+
   /* Get Neighbors */
   unsigned char ** neighbors;
   neighbors = get_neighbors(origin->dados, coordinate_y, coordinate_x);
 
-  /* Store average */
-  float average = 0.0f;
+  
 
   /* Average */
   for (int i = 0; i < 3; i++)
