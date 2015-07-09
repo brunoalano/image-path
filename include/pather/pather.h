@@ -29,7 +29,7 @@ typedef struct
 } Coordenada;
 
 /*============================================================================*/
-int encontraCaminho (Imagem1C* img, Coordenada** caminho);
+int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i);
 unsigned char ** get_neighbors(unsigned char **dados, uint32_t y, uint32_t x);
 void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x);
 void generate_histogram(Imagem1C *img, uint8_t *histogram);

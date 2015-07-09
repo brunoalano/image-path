@@ -31,8 +31,10 @@
  * 
  * @return         number of steps
  */
-int encontraCaminho (Imagem1C* img, Coordenada** caminho)
+int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
 {
+  char nome_saida [25]; /* String usada para salvar as saídas. */
+
   /* Create the filtered image */
   Imagem1C *filtrada = (Imagem1C *)malloc(sizeof(Imagem1C));
   filtrada->largura = img->largura;
@@ -70,8 +72,12 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
     filtrada->dados[i][img->largura - 1] = filtrada->dados[i][img->largura - 1] > 110 ? 0 : 255;
   }
 
-  salvaImagem1C(filtrada, "base.bmp");
+  /* Fix Holes */
 
+
+  /* Save */
+  sprintf (nome_saida, "out%d.bmp", i);
+  salvaImagem1C(filtrada, nome_saida);
   /* Clean the process */
   destroiImagem1C(filtrada);
 
@@ -177,14 +183,12 @@ void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uin
   unsigned char ** neighbors;
   neighbors = get_neighbors(origin->dados, coordinate_y, coordinate_x);
 
-  
-
   /* Average */
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 3; j++)
       average += neighbors[i][j] / 9;
 
-  if ( output->dados[coordinate_y][coordinate_x] > 92 )
+  if ( output->dados[coordinate_y][coordinate_x] > 99 )
     output->dados[coordinate_y][coordinate_x] = 0;
   else
     output->dados[coordinate_y][coordinate_x] = 255;
