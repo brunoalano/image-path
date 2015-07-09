@@ -184,7 +184,7 @@ void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uin
     for (int j = 0; j < 3; j++)
       average += neighbors[i][j] / 9;
 
-  if ( output->dados[coordinate_y][coordinate_x] > 100 )
+  if ( output->dados[coordinate_y][coordinate_x] > 92 )
     output->dados[coordinate_y][coordinate_x] = 0;
   else
     output->dados[coordinate_y][coordinate_x] = 255;
