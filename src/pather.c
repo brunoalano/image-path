@@ -41,19 +41,11 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   filtrada->altura = img->altura;
   filtrada->dados = (unsigned char**) malloc (sizeof (unsigned char*) * filtrada->altura);
   for (int i = 0; i < filtrada->altura; i++)
+  {
     filtrada->dados[i] = (unsigned char*)malloc(sizeof (unsigned char) * filtrada->largura);
-
-  /* Use the image as base */
-  for (int y = 0; y < img->altura; y++)
     for (int x = 0; x < img->largura; x++)
-      filtrada->dados[y][x] = img->dados[y][x];
-
-  /* Generate Histogram */
-  uint8_t *histogram = (uint8_t *)malloc(256 * sizeof(uint8_t));
-  generate_histogram(img, histogram);
-
-  /* Equalize the Histogram */
-  image_equalization(img, histogram);
+      filtrada->dados[i][x] = img->dados[i][x];
+  }
 
   /* Binarize the image */
   for (uint32_t i = 1; i < img->altura - 1; i++)
@@ -72,18 +64,48 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
     filtrada->dados[i][img->largura - 1] = filtrada->dados[i][img->largura - 1] > 110 ? 0 : 255;
   }
 
-  /* Fix Holes */
+  /* Find the path */
+  // for (int i = 0; i < filtrada->altura; i++)
+  // {
+  //   for (int j = 0; j < filtrada->largura; j++)
+  //     printf("%3d ", filtrada->dados[i][j]);
+  //   printf("\n");
+  // }
 
+  /* Find the path */
+  //dijkstra( filtrada->dados, filtrada->altura, filtrada->largura );
 
   /* Save */
   sprintf (nome_saida, "out%d.bmp", i);
   salvaImagem1C(filtrada, nome_saida);
+
   /* Clean the process */
   destroiImagem1C(filtrada);
 
   /* Return the number of steps */
   return 0;
 }
+
+/**
+ * Dijsktra Algorithm
+ *
+ * Find the shortest path from one side to other
+ */
+// void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width )
+// {
+//   /* Create a matrix with the map */
+//   uint8_t **map = (uint8_t **)malloc( height * sizeof( *uint8_t) );
+//   for (int i = 0; i < height; i++)
+//     map[i] = (uint8_t *)malloc( width * sizeof(uint8_t) );
+
+//   /* Traverse based on the first point */
+//   traverse( grid, map, 0, 0 );
+// }
+
+// void traverse( unsigned char ** grid, uint8_t ** map, uint32_t i, uint32_t j )
+// {
+
+// }
 
 /**
  * Histogram Equalization

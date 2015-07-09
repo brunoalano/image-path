@@ -35,6 +35,9 @@ void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uin
 void generate_histogram(Imagem1C *img, uint8_t *histogram);
 void image_equalization(Imagem1C *img, uint8_t *hist);
 void depth_first_search(Imagem1C *img, int8_t **steps, uint32_t x, uint32_t y, int label);
+
+void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width );
+void traverse( unsigned char ** grid, uint8_t ** map, uint32_t i, uint32_t j );
 /*============================================================================*/
 
 #endif

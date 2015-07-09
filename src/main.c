@@ -21,7 +21,7 @@
 
 char* ARQUIVOS [] =
 {
-    "../img/teste1.bmp",
+    "../img/crop.bmp",
     "../img/TESTE2.BMP",
     "../img/TESTE3.BMP",
     "../img/TESTE4.BMP",
@@ -30,7 +30,7 @@ char* ARQUIVOS [] =
     "../img/TESTE7.BMP",
 };
 
-#define N_ARQUIVOS 7
+#define N_ARQUIVOS 1
 
 /*============================================================================*/
 
