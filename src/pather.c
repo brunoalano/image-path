@@ -55,22 +55,18 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   /* Binarize the Borders */
   for (int i = 0; i < img->largura; i++)
   {
-    filtrada->dados[0][i] = filtrada->dados[0][i] > 110 ? 0 : 255;
-    filtrada->dados[img->altura - 1][i] = filtrada->dados[img->altura - 1][i] > 110 ? 0 : 255;
+    filtrada->dados[0][i] = 0;
+    filtrada->dados[img->altura - 1][i] = 0;
   }
   for (int i = 0; i < img->altura; i++)
   {
-    filtrada->dados[i][0] = filtrada->dados[i][0] > 110 ? 0 : 255;
-    filtrada->dados[i][img->largura - 1] = filtrada->dados[i][img->largura - 1] > 110 ? 0 : 255;
+    filtrada->dados[i][0] = 0;
+    filtrada->dados[i][img->largura - 1] = 0;
   }
 
-  /* Find the path */
-  // for (int i = 0; i < filtrada->altura; i++)
-  // {
-  //   for (int j = 0; j < filtrada->largura; j++)
-  //     printf("%3d ", filtrada->dados[i][j]);
-  //   printf("\n");
-  // }
+  /* Discover the Start Point */
+  uint32_t start_x = 0, start_y = 0; /* Y = line; X = column; */
+  discover_start_point( filtrada, &start_y, &start_x );
 
   /* Find the path */
   //dijkstra( filtrada->dados, filtrada->altura, filtrada->largura );
@@ -84,6 +80,22 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
 
   /* Return the number of steps */
   return 0;
+}
+
+/**
+ * Discover the Start Point on Image
+ */
+void discover_start_point(Imagem1C *binary_image, uint32_t *y, uint32_t *x)
+{
+  for ( int i = 0; i < binary_image->altura; i++ )
+  {
+    if ( binary_image->dados[i][1] == 255 )
+    {
+      *y = i;
+      *x = 0;
+      break;
+    }
+  }
 }
 
 /**
