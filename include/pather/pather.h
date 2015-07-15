@@ -11,6 +11,7 @@
 /* Project Headers */
 #include <pather/imagem.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Guards */
 #ifndef _PATHER_PATHER_H
@@ -36,10 +37,10 @@ void generate_histogram(Imagem1C *img, uint8_t *histogram);
 void image_equalization(Imagem1C *img, uint8_t *hist);
 void depth_first_search(Imagem1C *img, int8_t **steps, uint32_t x, uint32_t y, int label);
 
-void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width, uint32_t start_y, uint32_t start_x );
-void traverse( unsigned char ** grid, uint8_t ** map, uint32_t y, uint32_t x );
+void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width, int32_t start_y, int32_t start_x );
+bool traverse( unsigned char ** grid, unsigned long height, unsigned long width, uint8_t ** map, int32_t y, int32_t x );
 
-void discover_start_point(Imagem1C *binary_image, uint32_t *y, uint32_t *x);
+void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x);
 /*============================================================================*/
 
 #endif

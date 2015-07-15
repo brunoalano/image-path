@@ -18,6 +18,10 @@
 #include <pather/pather.h>
 #include <pather/imagem.h>
 
+/* Constants */
+#define PATH 2
+#define TRIED 3
+
 /**
  * Menor Caminho na Imagem
  *
@@ -65,13 +69,15 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   }
 
   /* Discover the Start Point */
-  uint32_t start_x = 0, start_y = 0; /* Y = line; X = column; */
+  int32_t start_x = 0, start_y = 0; /* Y = line; X = column; */
   discover_start_point( filtrada, &start_y, &start_x );
 
   /* Find the path */
-  //dijkstra( filtrada->dados, filtrada->altura, filtrada->largura );
+  dijkstra( filtrada->dados, filtrada->altura, filtrada->largura, start_y, start_x );
 
-  /* Save */
+  /**************************
+   *         DEBUG          *
+   *************************/
   sprintf (nome_saida, "out%d.bmp", i);
   salvaImagem1C(filtrada, nome_saida);
 
@@ -85,14 +91,14 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
 /**
  * Discover the Start Point on Image
  */
-void discover_start_point(Imagem1C *binary_image, uint32_t *y, uint32_t *x)
+void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x)
 {
   for ( int i = 0; i < binary_image->altura; i++ )
   {
     if ( binary_image->dados[i][1] == 255 )
     {
       *y = i;
-      *x = 0;
+      *x = 1;
       break;
     }
   }
@@ -103,21 +109,76 @@ void discover_start_point(Imagem1C *binary_image, uint32_t *y, uint32_t *x)
  *
  * Find the shortest path from one side to other
  */
-// void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width )
-// {
-//   /* Create a matrix with the map */
-//   uint8_t **map = (uint8_t **)malloc( height * sizeof( *uint8_t) );
-//   for (int i = 0; i < height; i++)
-//     map[i] = (uint8_t *)malloc( width * sizeof(uint8_t) );
+void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width, int32_t start_y, int32_t start_x )
+{
+  /* Create a matrix with the map */
+  uint8_t **map = (uint8_t **)malloc( height * sizeof( uint8_t * ) );
+  for (int i = 0; i < height; i++)
+    map[i] = (uint8_t *)malloc( width * sizeof(uint8_t) );
 
-//   /* Traverse based on the first point */
-//   traverse( grid, map, 0, 0 );
-// }
+  /* Traverse based on the first point */
+  bool solved = traverse( grid, height, width, map, start_y, start_x );
+  if ( solved )
+  {
+    printf("%s\n", "Resolveu");
 
-// void traverse( unsigned char ** grid, uint8_t ** map, uint32_t i, uint32_t j )
-// {
+    for (int i = 0; i < height; i++)
+    {
+      for (int j = 0; j < width; j++)
+        printf("%d", map[i][j]);
+      printf("\n");
+    }
+  }
+  else
+    printf("%s\n", "Não resolveu");
+}
 
-// }
+bool traverse( unsigned char ** grid, unsigned long height, unsigned long width, uint8_t ** map, int32_t y, int32_t x )
+{
+  /* Check if is valid */
+  if ( ! ( (y >= 0 && y < height && x >= 0 && x < width) && grid[y][x] == 255 && !(map[y][x] == TRIED) ) )
+    return false;
+
+  /* Verifica se chegou no objetivo */
+  if ( y == 11 - 1 && x == 79 - 1)
+  {
+    map[y][x] = PATH;
+    return true;
+  } else {
+    map[y][x] = TRIED;
+  }
+
+  /* Norte */
+  if ( traverse(grid, height, width, map, y - 1, x) )
+  {
+    map[y - 1][x] = PATH;
+    return true;
+  }
+
+  /* East */
+  if ( traverse(grid, height, width, map, y, x + 1) )
+  {
+    map[y][x + 1] = PATH;
+    return true;
+  }
+
+  /* Sul */
+  if ( traverse(grid, height, width, map, y + 1, x) )
+  {
+    map[y + 1][x] = PATH;
+    return true;
+  }
+
+  /* West */
+  if ( traverse(grid, height, width, map, y, x - 1) )
+  {
+    map[y][x - 1] = PATH;
+    return true;
+  }
+
+  /* Default */
+  return false;
+}
 
 /**
  * Histogram Equalization
