@@ -21,7 +21,7 @@
 
 char* ARQUIVOS [] =
 {
-    "../img/loco.bmp",
+    "../img/crop.bmp",
     "../img/TESTE2.BMP",
     "../img/TESTE3.BMP",
     "../img/TESTE4.BMP",

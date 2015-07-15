@@ -105,6 +105,26 @@ void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x)
 }
 
 /**
+ * Breadth-first search
+ *
+ * The beauty of this algorithms, that is it always
+ * find the shortest path
+ *
+ * @param grid = matriz contendo imagem binarizada
+ * @param local = ponto atual
+ * @param height = altura do grid
+ * @param width = largura do grid
+ */
+void bfs( unsigned char ** grid, Coordenada local, unsigned long height, unsigned long width)
+{
+  /* Insere uma nova coordenada na queue */
+  Enqueue(local);
+  
+  /* While has elements in queue */
+  while ( )
+}
+
+/**
  * Dijsktra Algorithm
  *
  * Find the shortest path from one side to other
