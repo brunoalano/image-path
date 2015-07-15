@@ -20,7 +20,8 @@
 
 /* Definitions */
 #define AVAILABLE 0 /* Está disponível */
-#define PASSED -1 /* Já passou */
+#define PROCESSED 9 /* Já andamos aqui */
+#define BLOCKED -1 /* Não andar por aqui */
 
 /**
  * Menor Caminho na Imagem
@@ -74,20 +75,49 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   Coordenada start;
   start.x = start_x;
   start.y = start_y;
+  start.parent = NULL;
 
   /* Cria uma Queue */
   Queue queue = createQueue();
 
-  /* Cria um mapa */
+  /**
+   * Cria um Mapa
+   *
+   * Este mapa estará definido como 0 para todas as poissições
+   * onde pode andar, e -1 para posições bloqueadas.
+   */
   int8_t **map = (int8_t **)malloc( filtrada->altura * sizeof( int8_t * ) );
   for (int i = 0; i < filtrada->altura; i++)
     map[i] = (int8_t *)malloc( filtrada->largura * sizeof(int8_t) );
   for (int i = 0; i < filtrada->altura; i++)
     for (int j = 0; j < filtrada->largura; j++)
-      map[i][j] = 0;
+      if ( filtrada->dados[i][j] == 255)
+        map[i][j] = AVAILABLE;
+      else
+        map[i][j] = BLOCKED;
+
+  /* Hold the destination */
+  Coordenada *dest = (Coordenada *)malloc(sizeof(Coordenada));
 
   /* BFS */
-  bfs( filtrada->dados, start, queue, map, filtrada->altura, filtrada->largura);
+  dest = bfs( filtrada->dados, start, queue, map, filtrada->altura, filtrada->largura);
+
+  /* Verifica se encontrou caminho */
+  if ( dest == NULL )
+  {
+    printf("Não foi possível encontrar o caminho\n");
+  } else {
+    /* Get the path */
+    printf("Achou o caminho\n");
+    // while ( dest->parent != NULL )
+    // {
+    //   /* Print the step */
+    //   //printf("Passo: [%d, %d]\n", dest->x, dest->y);
+
+    //   /* Go to next parent */
+    //   dest = dest->parent;
+    // }
+  }
 
   /**************************
    *         DEBUG          *
@@ -129,112 +159,85 @@ void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x)
  * @param height = altura do grid
  * @param width = largura do grid
  */
+int dx[] = {-1,1,0,0,-1,1,-1,1};
+int dy[] = {0,0,1,-1,-1,-1,1,1};
 
-Coordenada bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width)
+typedef struct path{
+  int x;
+  int y;
+  struct path* next;
+} path;
+
+path* head;
+path* cur;
+
+Coordenada *bfs( unsigned char ** grid, Coordenada startNode, Queue queue, int8_t **map, unsigned long height, unsigned long width)
 {
   /* Insere a coordenada atual na queue */
-  queue.push(&queue, local);
+  queue.push(&queue, startNode);
+  head = NULL;
+  cur = NULL;
 
   /* While queue are not empty */
   while ( queue.size != 0 )
   {
     /* Retrieve some point */
     Coordenada p = queue.pop(&queue);
-    printf("Processando (%d, %d)\n", p.x, p.y);
-    
-    /* Check if it's the last point */
-    if ( p.x == 33 - 1 && p.y == 16 - 1 )
+
+    /* Check if its the target */
+    if(p.x == width - 2)
     {
-      printf("%s\n", "Chegamos onde queríamos");
-      return p;
+      Coordenada *obj = (Coordenada *)malloc(sizeof(Coordenada));
+      obj->y = p.y;
+      obj->x = p.x;
+      obj->parent = p.parent;
+
+      Coordenada *temp = (Coordenada *)malloc(sizeof(Coordenada));
+      temp = obj->parent;
+      while(temp!=NULL)
+      {
+          head = (path *)malloc(sizeof(path));
+          head->x = temp->x;
+          head->y = temp->y;
+          head->next = cur;
+          cur = head;
+
+          temp = temp->parent;
+      }
+
+      return obj;
     }
 
-    /* Try to move on */
-    if ( isFree(grid, map, p.y + 1, p.x, height, width) )
+    for(int i=0;i<8;i++)
     {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y + 1;
-      next_point.x = p.x;
-      queue.push(&queue, next_point);
-    }
+      int new_x = p.x + dx[i];
+      int new_y = p.y + dy[i];
 
-    if ( isFree(grid, map, p.y - 1, p.x, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y - 1;
-      next_point.x = p.x;
-      queue.push(&queue, next_point);
-    }
+      if(new_x >= 0 && new_x<width && new_y >= 0 && new_y<height)
+      {
+        if(map[new_y][new_x] == AVAILABLE)
+        {
+          map[new_y][new_x] = PROCESSED;
 
-    if ( isFree(grid, map, p.y + 1, p.x + 1, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y + 1;
-      next_point.x = p.x + 1;
-      queue.push(&queue, next_point);
-    }
+          Coordenada *parent = (Coordenada *)malloc(sizeof(Coordenada));
+          parent->y = p.y;
+          parent->x = p.x;
+          parent->parent = p.parent;
 
-    if ( isFree(grid, map, p.y - 1, p.x + 1, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y - 1;
-      next_point.x = p.x + 1;
-      queue.push(&queue, next_point);
-    }
+          /* Create the next point based on this as parent */
+          Coordenada next;
+          next.y = new_y;
+          next.x = new_x;
+          next.parent = parent;
 
-    if ( isFree(grid, map, p.y + 1, p.x - 1, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y + 1;
-      next_point.x = p.x - 1;
-      queue.push(&queue, next_point);
+          queue.push(&queue, next);
+        }
+      }
     }
-
-    if ( isFree(grid, map, p.y - 1, p.x - 1, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y - 1;
-      next_point.x = p.x - 1;
-      queue.push(&queue, next_point);
-    }
-
-    if ( isFree(grid, map, p.y, p.x - 1, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y;
-      next_point.x = p.x - 1;
-      queue.push(&queue, next_point);
-    }
-
-    if ( isFree(grid, map, p.y, p.x + 1, height, width) )
-    {
-      map[p.y][p.x] = -1;
-      Coordenada next_point;
-      next_point.y = p.y;
-      next_point.x = p.x + 1;
-      queue.push(&queue, next_point);
-    }
-
   }
 
-  Coordenada empty_coord;
 
-  /* Otherwise */
-  return empty_coord;
-}
-
-bool isFree( unsigned char ** grid, int8_t ** map, int y, int x, unsigned long height, unsigned long width )
-{
-  if((y >= 0 && y < height) && (x >= 0 && y < width) && (map[y][x] == 0) && (grid[y][x] == 255))
-    return true;
-  return false;
+  return NULL;
 }
 
 /**
@@ -277,6 +280,22 @@ Coordenada peek (Queue* queue) {
     Node* head = queue->head;
     return head->item;
 }
+
+/**
+ * Create and initiate a Queue
+ */
+Queue createQueue () {
+  Queue queue;
+  queue.size = 0;
+  queue.head = NULL;
+  queue.tail = NULL;
+  queue.push = &push;
+  queue.pop = &pop;
+  queue.peek = &peek;
+  queue.display = &display;
+  return queue;
+}
+
 /**
  * Show all items in queue.
  */
@@ -297,21 +316,6 @@ void display (Queue* queue) {
         }
     }
     printf("\n\n");
-}
-
-/**
- * Create and initiate a Queue
- */
-Queue createQueue () {
-  Queue queue;
-  queue.size = 0;
-  queue.head = NULL;
-  queue.tail = NULL;
-  queue.push = &push;
-  queue.pop = &pop;
-  queue.peek = &peek;
-  queue.display = &display;
-  return queue;
 }
 
 /**

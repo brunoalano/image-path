@@ -23,10 +23,24 @@
  * We use this data type to represent a point in our
  * Euclidean Space Matrix.
  */
-typedef struct
+typedef struct Coordenada
 {
-    int x;
-    int y;
+  /**
+   * The x coordinate of the node on the grid.
+   * @type number
+   */
+  int x;
+
+  /**
+   * The y coordinate of the node on the grid.
+   * @type number
+   */
+  int y;
+
+  /**
+   * Coordinate Parent
+   */
+  struct Coordenada *parent;
 } Coordenada;
 
 /**
@@ -36,8 +50,11 @@ typedef struct
  * Ref: http://ben-bai.blogspot.com.br/2012/04/simple-queue-data-structure-in-ansi-c.html
  */
 typedef struct Node {
-    Coordenada item;
-    struct Node* next;
+  /* Coordenada do Nó */
+  Coordenada item;
+
+  /* Próximo item na Queue */
+  struct Node* next;
 } Node;
 
 /**
@@ -93,8 +110,7 @@ bool traverse( unsigned char ** grid, unsigned long height, unsigned long width,
 
 void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x);
 
-Coordenada bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width);
-bool isFree( unsigned char ** grid, int8_t ** map, int y, int x, unsigned long height, unsigned long width );
+Coordenada *bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width);
 /*============================================================================*/
 
 #endif
