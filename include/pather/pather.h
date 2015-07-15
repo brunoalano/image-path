@@ -32,9 +32,11 @@ typedef struct
 /**
  * The Node struct,
  * contains item and the pointer that point to next node.
+ *
+ * Ref: http://ben-bai.blogspot.com.br/2012/04/simple-queue-data-structure-in-ansi-c.html
  */
 typedef struct Node {
-    int item;
+    Coordenada item;
     struct Node* next;
 } Node;
 
@@ -47,11 +49,11 @@ typedef struct Queue {
   Node* head;
   Node* tail;
 
-  void (*push) (struct Queue*, int); // add item to tail
+  void (*push) (struct Queue*, Coordenada); // add item to tail
   // get item from head and remove it from queue
-  int (*pop) (struct Queue*);
+  Coordenada (*pop) (struct Queue*);
   // get item from head but keep it in queue
-  int (*peek) (struct Queue*);
+  Coordenada (*peek) (struct Queue*);
   // display all element in queue
   void (*display) (struct Queue*);
   // size of this queue
@@ -63,19 +65,20 @@ typedef struct Queue {
  * both queue->head and queue->tail will point to it,
  * otherwise the oldtail->next and tail will point to it.
  */
-void push (Queue* queue, int item);
+void push (Queue* queue, Coordenada item);
 /**
  * Return and remove the first item.
  */
-int pop (Queue* queue);
+Coordenada pop (Queue* queue);
 /**
  * Return but not remove the first item.
  */
-int peek (Queue* queue);
+Coordenada peek (Queue* queue);
 /**
  * Show all items in queue.
  */
 void display (Queue* queue);
+Queue createQueue();
 
 /*============================================================================*/
 int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i);
@@ -89,6 +92,9 @@ void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width,
 bool traverse( unsigned char ** grid, unsigned long height, unsigned long width, uint8_t ** map, int32_t y, int32_t x );
 
 void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x);
+
+Coordenada bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width);
+bool isFree( unsigned char ** grid, int8_t ** map, int y, int x, unsigned long height, unsigned long width );
 /*============================================================================*/
 
 #endif
