@@ -40,28 +40,6 @@ long testaCaminho (Coordenada* caminho, int n, Imagem1C* dt);
 
 /*============================================================================*/
 
-// int main(void)
-// {
-//     /* Store the steps */
-//     Coordenada* caminho;
-
-//     /* Store the image */
-//     Imagem1C* img;
-//     img = abreImagem1C ("../img/teste1.bmp");
-
-//     if (!img) {
-//         printf("Nao foi possivel abrir o arquivo\n");
-//         return 1;
-//     }
-
-//     /* Process the file */
-//     int n_coordenadas = encontraCaminho(img, &caminho);
-
-//     /* Return to operating system */
-//     return 0;
-// }
-
-
 int main ()
 {
     int i, n_coordenadas;
@@ -91,28 +69,29 @@ int main ()
         n_coordenadas = encontraCaminho (img, &caminho, i);
 
         /* Testa se este caminho é um caminho válido, e calcula o score. */
-        //score = testaCaminho (caminho, n_coordenadas, img_dt);
-        //fprintf (out_file, "%ld\n", score);
+        score = testaCaminho (caminho, n_coordenadas, img_dt);
+        fprintf (out_file, "%ld\n", score);
 
-        // if (SALVA_SAIDA)
-        // {
-        //     int c;
-        //     out = abreImagem3C (ARQUIVOS [i]);
-        //     for (c = 0; c < n_coordenadas; c++)
-        //     {
-        //         out->dados [0][caminho [c].y][caminho [c].x] = 255;
-        //         out->dados [1][caminho [c].y][caminho [c].x] = 0;
-        //         out->dados [2][caminho [c].y][caminho [c].x] = 0;
-        //     }
+        if (SALVA_SAIDA)
+        {
+            int c;
+            out = abreImagem3C (ARQUIVOS [i]);
+            for (c = 0; c < n_coordenadas; c++)
+            {
+              printf("%d\n", caminho[c].x);
+                out->dados [0][caminho [c].y][caminho [c].x] = 255;
+                out->dados [1][caminho [c].y][caminho [c].x] = 0;
+                out->dados [2][caminho [c].y][caminho [c].x] = 0;
+            }
 
-        //     sprintf (nome_saida, "out%d.bmp", i);
-        //     salvaImagem3C (out, nome_saida);
-        //     destroiImagem3C (out);
-        // }
+            sprintf (nome_saida, "out%d.bmp", i);
+            salvaImagem3C (out, nome_saida);
+            destroiImagem3C (out);
+        }
 
         //destroiImagem1C (img_dt);
         destroiImagem1C (img);
-        //free (caminho);
+        free (caminho);
     }
 
     fclose (out_file);

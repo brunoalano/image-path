@@ -102,34 +102,40 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   /* BFS */
   dest = bfs( filtrada->dados, start, queue, map, filtrada->altura, filtrada->largura);
 
+  /* Create a dynamic vector that grows in base 2 */
+  Vector vector;
+  vector_init(&vector);
+
   /* Verifica se encontrou caminho */
   if ( dest == NULL )
   {
+    /* Error, pay more attetion */
     printf("Não foi possível encontrar o caminho\n");
   } else {
-    /* Get the path */
+    /* Got the path */
     printf("Achou o caminho\n");
-    // while ( dest->parent != NULL )
-    // {
-    //   /* Print the step */
-    //   //printf("Passo: [%d, %d]\n", dest->x, dest->y);
+    
+    /* Append coordinates */
+    while ( dest->parent != NULL )
+    {
+      /* Print the step */
+      vector_append(&vector, dest);
 
-    //   /* Go to next parent */
-    //   dest = dest->parent;
-    // }
+      /* Go to next parent */
+      dest = dest->parent;
+    }
   }
 
-  /**************************
-   *         DEBUG          *
-   *************************/
-  sprintf (nome_saida, "out%d.bmp", i);
-  salvaImagem1C(filtrada, nome_saida);
-
+  /* Malloc the Caminho */
+  *caminho = (Coordenada *)malloc(vector.size * sizeof(Coordenada));
+  for ( int i = 0; i < vector.size; i++ )
+    (*caminho)[i] = *vector_get(&vector, vector.size - 1 - i);
+  
   /* Clean the process */
   destroiImagem1C(filtrada);
 
   /* Return the number of steps */
-  return 0;
+  return vector.size - 1;
 }
 
 /**
@@ -466,4 +472,53 @@ void generate_histogram(Imagem1C *img, uint8_t *histogram)
   for (int y = 0; y < img->altura; y++)
     for (int x = 0; x < img->largura; x++)
       histogram[ img->dados[y][x] ]++;
+}
+
+
+
+void vector_init(Vector *vector) {
+  // initialize size and capacity
+  vector->size = 0;
+  vector->capacity = VECTOR_INITIAL_CAPACITY;
+
+  // allocate memory for vector->data
+  vector->data = malloc(sizeof(Coordenada *) * vector->capacity);
+}
+
+void vector_append(Vector *vector, Coordenada *value) {
+  // make sure there's room to expand into
+  vector_double_capacity_if_full(vector);
+
+  // append the value and increment vector->size
+  vector->data[vector->size++] = value;
+}
+
+Coordenada* vector_get(Vector *vector, int index) {
+  if (index >= vector->size || index < 0) {
+    printf("Index %d out of bounds for vector of size %d\n", index, vector->size);
+    exit(1);
+  }
+  return vector->data[index];
+}
+
+void vector_set(Vector *vector, int index, Coordenada *value) {
+  // zero fill the vector up to the desired index
+  while (index >= vector->size) {
+    vector_append(vector, NULL);
+  }
+
+  // set the value at the desired index
+  vector->data[index] = value;
+}
+
+void vector_double_capacity_if_full(Vector *vector) {
+  if (vector->size >= vector->capacity) {
+    // double vector->capacity and resize the allocated memory accordingly
+    vector->capacity *= 2;
+    vector->data = realloc(vector->data, sizeof(Coordenada *) * vector->capacity);
+  }
+}
+
+void vector_free(Vector *vector) {
+  free(vector->data);
 }

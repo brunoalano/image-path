@@ -13,6 +13,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* Constants */
+#define VECTOR_INITIAL_CAPACITY 100
+
 /* Guards */
 #ifndef _PATHER_PATHER_H
 #define _PATHER_PATHER_H
@@ -97,20 +100,42 @@ Coordenada peek (Queue* queue);
 void display (Queue* queue);
 Queue createQueue();
 
+/**
+ * Dynamic Vector
+ *
+ * This vector will increses of size when adds element
+ * to it.
+ */
+typedef struct {
+  int size;      // slots used so far
+  int capacity;  // total available slots
+  Coordenada **data;     // array of integers we're storing
+} Vector;
+
+void vector_init(Vector *vector);
+void vector_append(Vector *vector, Coordenada *value);
+Coordenada* vector_get(Vector *vector, int index);
+void vector_set(Vector *vector, int index, Coordenada *value);
+void vector_double_capacity_if_full(Vector *vector);
+void vector_free(Vector *vector);
+
+
 /*============================================================================*/
+
+/* Image Related */
 int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i);
 unsigned char ** get_neighbors(unsigned char **dados, uint32_t y, uint32_t x);
 void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x);
 void generate_histogram(Imagem1C *img, uint8_t *histogram);
 void image_equalization(Imagem1C *img, uint8_t *hist);
-void depth_first_search(Imagem1C *img, int8_t **steps, uint32_t x, uint32_t y, int label);
 
-void dijkstra( unsigned char ** grid, unsigned long height, unsigned long width, int32_t start_y, int32_t start_x );
-bool traverse( unsigned char ** grid, unsigned long height, unsigned long width, uint8_t ** map, int32_t y, int32_t x );
-
+/* Path Related */
 void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x);
-
 Coordenada *bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width);
+
+
 /*============================================================================*/
+
+
 
 #endif
