@@ -69,16 +69,51 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
     filtrada->dados[i][img->largura - 1] = 0;
   }
 
-  /* Discover the Start Point */
+  /* Cria um vetor dinâmico para armazenar as posições do melhor caminho */
+  Vector vector;
+  vector_init(&vector);
+
+  
+  /* Armazena o caminho retornado pela função */
+  *caminho = captura_caminho(filtrada, &vector, 1);
+  
+  /* Clean the process */
+  destroiImagem1C(filtrada);
+
+  /* Return the number of steps */
+  return vector.size - 1;
+}
+
+Coordenada *captura_caminho(Imagem1C *filtrada, Vector *vector, int iteration)
+{
+  /* Maximum of iterations */
+  if ( iteration > 2 ) return NULL;
+
+  /**
+   * Queue para Breadth First Search
+   *
+   * Irá armazenar os pontos à serem processados.
+   */
+  Queue queue = createQueue();
+
+  /**
+   * Procura o Ponto Inicial
+   *
+   * Devemos saber de qual ponto devemos partir à nossa
+   * busca.
+   */
   int32_t start_x = 0, start_y = 0; /* Y = line; X = column; */
   discover_start_point( filtrada, &start_y, &start_x );
   Coordenada start;
   start.x = start_x;
   start.y = start_y;
   start.parent = NULL;
-
-  /* Cria uma Queue */
-  Queue queue = createQueue();
+  Coordenada *startPtr = (Coordenada *)malloc(sizeof(Coordenada));
+  startPtr->x = start_x - 1;
+  startPtr->y = start.y;
+  Coordenada *sstartPtr = (Coordenada *)malloc(sizeof(Coordenada));
+  sstartPtr->x = start_x;
+  sstartPtr->y = start.y;
 
   /**
    * Cria um Mapa
@@ -96,23 +131,16 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
       else
         map[i][j] = BLOCKED;
 
-  /* Hold the destination */
+  /**
+   * Algoritmo de Busca
+   * ~~~~~~~~~~~~~~~~~~~
+   */
+  
+  /* Armazena o Ponto Final da Busca (possívelmente NULL) */
   Coordenada *dest = (Coordenada *)malloc(sizeof(Coordenada));
 
-  Coordenada *startPtr = (Coordenada *)malloc(sizeof(Coordenada));
-  startPtr->x = start_x - 1;
-  startPtr->y = start.y;
-
-  Coordenada *sstartPtr = (Coordenada *)malloc(sizeof(Coordenada));
-  sstartPtr->x = start_x;
-  sstartPtr->y = start.y;
-
-  /* BFS */
+  /* Breadth First Search */
   dest = bfs( filtrada->dados, start, queue, map, filtrada->altura, filtrada->largura);
-
-  /* Create a dynamic vector that grows in base 2 */
-  Vector vector;
-  vector_init(&vector);
 
   /* Verifica se encontrou caminho */
   if ( dest == NULL )
@@ -124,47 +152,55 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
     dilate(filtrada);
     dilate(filtrada);
 
-    salvaImagem1C(filtrada, "dilatacao.bmp");
+    /* Tenta novamente (última vez) */
+    Coordenada *caminho;
+    caminho = captura_caminho(filtrada, vector, iteration + 1);
+
+    /* Check if null */
+    if ( caminho == NULL )
+    {
+      printf("Limite de iterações execedidas.\n");
+    } else {
+      printf("Encontrou caminho pela %d iteração!\n", iteration + 1);
+    }
   } else {
     /* Got the path */
-    printf("Achou o caminho\n");
+    printf("Encontrou caminho sem dilatação\n");
 
     /* Add the borders */
     Coordenada *border_1 = (Coordenada *)malloc(sizeof(Coordenada));
     border_1->x = dest->x + 2;
     border_1->y = dest->y;
-    vector_append(&vector, border_1);
+    vector_append(vector, border_1);
     Coordenada *border_3 = (Coordenada *)malloc(sizeof(Coordenada));
     border_3->x = dest->x + 1;
     border_3->y = dest->y;
-    vector_append(&vector, border_3);
+    vector_append(vector, border_3);
     
     /* Append coordinates */
     while ( dest->parent != NULL )
     {
       /* Add to vector */
-      vector_append(&vector, dest);
+      vector_append(vector, dest);
 
       /* Go to next parent */
       dest = dest->parent;
     }
 
     /* Add the first point */
-    vector_append(&vector, sstartPtr);
-    vector_append(&vector, startPtr);
+    vector_append(vector, sstartPtr);
+    vector_append(vector, startPtr);
   }
 
   /* Malloc the Caminho */
-  *caminho = (Coordenada *)malloc((vector.size + 3) * sizeof(Coordenada));
+  Coordenada *caminho = (Coordenada *)malloc((vector->size + 3) * sizeof(Coordenada));
   
-  for ( int i = 0; i < vector.size; i++ )
-    (*caminho)[i] = *vector_get(&vector, vector.size - i - 1);
-  
-  /* Clean the process */
-  destroiImagem1C(filtrada);
+  /* Reordenada da esquerda para direita */
+  for ( int i = 0; i < vector->size; i++ )
+    caminho[i] = *vector_get(vector, vector->size - i - 1);
 
-  /* Return the number of steps */
-  return vector.size - 1;
+  /* Retorna o caminho */
+  return caminho;
 }
 
 void dilate(Imagem1C *img)

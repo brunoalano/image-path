@@ -134,6 +134,8 @@ void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x);
 Coordenada *bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width);
 
 void dilate(Imagem1C *img);
+
+Coordenada *captura_caminho(Imagem1C *filtrada, Vector *vector, int iteration);
 /*============================================================================*/
 
 
