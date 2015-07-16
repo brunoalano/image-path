@@ -36,7 +36,7 @@
  * 
  * @return         number of steps
  */
-int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
+int encontraCaminho (Imagem1C* img, Coordenada** caminho)
 {
   char nome_saida [25]; /* String usada para salvar as saídas. */
 
@@ -99,6 +99,14 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   /* Hold the destination */
   Coordenada *dest = (Coordenada *)malloc(sizeof(Coordenada));
 
+  Coordenada *startPtr = (Coordenada *)malloc(sizeof(Coordenada));
+  startPtr->x = start_x - 1;
+  startPtr->y = start.y;
+
+  Coordenada *sstartPtr = (Coordenada *)malloc(sizeof(Coordenada));
+  sstartPtr->x = start_x;
+  sstartPtr->y = start.y;
+
   /* BFS */
   dest = bfs( filtrada->dados, start, queue, map, filtrada->altura, filtrada->largura);
 
@@ -114,22 +122,41 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho, int i)
   } else {
     /* Got the path */
     printf("Achou o caminho\n");
+
+    /* Add the borders */
+    Coordenada *border_2 = (Coordenada *)malloc(sizeof(Coordenada));
+    border_2->x = dest->x + 2;
+    border_2->y = dest->y;
+    vector_append(&vector, border_2);
+    Coordenada *border_1 = (Coordenada *)malloc(sizeof(Coordenada));
+    border_1->x = dest->x + 1;
+    border_1->y = dest->y;
+    vector_append(&vector, border_1);
+    Coordenada *border_3 = (Coordenada *)malloc(sizeof(Coordenada));
+    border_3->x = dest->x;
+    border_3->y = dest->y;
+    vector_append(&vector, border_3);
     
     /* Append coordinates */
     while ( dest->parent != NULL )
     {
-      /* Print the step */
+      /* Add to vector */
       vector_append(&vector, dest);
 
       /* Go to next parent */
       dest = dest->parent;
     }
+
+    /* Add the first point */
+    vector_append(&vector, sstartPtr);
+    vector_append(&vector, startPtr);
   }
 
   /* Malloc the Caminho */
-  *caminho = (Coordenada *)malloc(vector.size * sizeof(Coordenada));
+  *caminho = (Coordenada *)malloc((vector.size + 3) * sizeof(Coordenada));
+  
   for ( int i = 0; i < vector.size; i++ )
-    (*caminho)[i] = *vector_get(&vector, vector.size - 1 - i);
+    (*caminho)[i] = *vector_get(&vector, vector.size - i - 1);
   
   /* Clean the process */
   destroiImagem1C(filtrada);

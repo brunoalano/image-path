@@ -1,18 +1,14 @@
-/**
- * Shortest Path in Image
- *
- * This algorithm tries to find the optima path between
- * 2 pointers that are connected with a line.
- *
- * This image contains a Bitmap, and we need to binarize it
- * for better results, and run some filters.
- */
+/*============================================================================*/
+/* IF61C - 2013-2 - TRABALHO 3                                                */
+/*----------------------------------------------------------------------------*/
+/* Autor: Bogdan T. Nassu - nassu@dainf.ct.utfpr.edu.br                       */
+/*============================================================================*/
+/** Testar a busca do caminho mais curto com arquivos .bmp. */
+/*============================================================================*/
 
-/* Standard Library */
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Project Header */
 #include <pather/pather.h>
 
 /*============================================================================*/
@@ -22,12 +18,12 @@
 char* ARQUIVOS [] =
 {
     "../img/teste1.bmp",
-    "../img/TESTE2.BMP",
-    "../img/TESTE3.BMP",
-    "../img/TESTE4.BMP",
-    "../img/TESTE5.BMP",
-    "../img/TESTE6.BMP",
-    "../img/TESTE7.BMP",
+    "../img/teste2.bmp",
+    "../img/teste3.bmp",
+    "../img/teste4.bmp",
+    "../img/teste5.bmp",
+    "../img/teste6.bmp",
+    "../img/teste7.bmp",
 };
 
 #define N_ARQUIVOS 7
@@ -63,10 +59,10 @@ int main ()
         }
 
         /* Cria a imagem da transformada de distância. */
-        // img_dt = abreImagem1C (ARQUIVOS [i]);
-        // criaMatrizDT (img_dt);
+        img_dt = abreImagem1C (ARQUIVOS [i]);
+        criaMatrizDT (img_dt);
 
-        n_coordenadas = encontraCaminho (img, &caminho, i);
+        n_coordenadas = encontraCaminho (img, &caminho);
 
         /* Testa se este caminho é um caminho válido, e calcula o score. */
         score = testaCaminho (caminho, n_coordenadas, img_dt);
@@ -78,7 +74,6 @@ int main ()
             out = abreImagem3C (ARQUIVOS [i]);
             for (c = 0; c < n_coordenadas; c++)
             {
-              printf("%d\n", caminho[c].x);
                 out->dados [0][caminho [c].y][caminho [c].x] = 255;
                 out->dados [1][caminho [c].y][caminho [c].x] = 0;
                 out->dados [2][caminho [c].y][caminho [c].x] = 0;
@@ -89,7 +84,7 @@ int main ()
             destroiImagem3C (out);
         }
 
-        //destroiImagem1C (img_dt);
+        destroiImagem1C (img_dt);
         destroiImagem1C (img);
         free (caminho);
     }
@@ -188,7 +183,10 @@ long testaCaminho (Coordenada* caminho, int n, Imagem1C* dt)
         vizinho_em_y = caminho [c].y == caminho [c-1].y-1 || caminho [c].y == caminho [c-1].y+1;
 
         if ((!vizinho_em_x && !vizinho_em_y) || (vizinho_em_x && vizinho_em_y))
+        {
+          printf("%d %d %d %d\n", caminho [c].x, caminho [c-1].x-1, caminho [c].x, caminho [c-1].x+1 );
             return (-1);
+        }
     }
 
     /* Calcula o score para este caminho. */
