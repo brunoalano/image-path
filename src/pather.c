@@ -55,7 +55,7 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
   /* Binarize the image */
   for (uint32_t i = 1; i < img->altura - 1; i++)
     for (uint32_t j = 1; j < img->largura - 1; j++)
-      binarization(img, filtrada, i, j);
+      binarization(img, filtrada, i, j, 99);
 
   /* Binarize the Borders */
   for (int i = 0; i < img->largura; i++)
@@ -119,21 +119,23 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
   {
     /* Error, pay more attetion */
     printf("Não foi possível encontrar o caminho\n");
+    
+    /* Dilatamos duas vezes a imagem */
+    dilate(filtrada);
+    dilate(filtrada);
+
+    salvaImagem1C(filtrada, "dilatacao.bmp");
   } else {
     /* Got the path */
     printf("Achou o caminho\n");
 
     /* Add the borders */
-    Coordenada *border_2 = (Coordenada *)malloc(sizeof(Coordenada));
-    border_2->x = dest->x + 2;
-    border_2->y = dest->y;
-    vector_append(&vector, border_2);
     Coordenada *border_1 = (Coordenada *)malloc(sizeof(Coordenada));
-    border_1->x = dest->x + 1;
+    border_1->x = dest->x + 2;
     border_1->y = dest->y;
     vector_append(&vector, border_1);
     Coordenada *border_3 = (Coordenada *)malloc(sizeof(Coordenada));
-    border_3->x = dest->x;
+    border_3->x = dest->x + 1;
     border_3->y = dest->y;
     vector_append(&vector, border_3);
     
@@ -163,6 +165,28 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
 
   /* Return the number of steps */
   return vector.size - 1;
+}
+
+void dilate(Imagem1C *img)
+{
+  for ( int i = 0; i < img->altura; i++ )
+  {
+    for ( int j = 0; j < img->largura; j++ )
+    {
+      if ( img->dados[i][j] == 255 )
+      {
+        if (i>0 && img->dados[i-1][j]==0) img->dados[i-1][j] = 2;
+        if (j>0 && img->dados[i][j-1]==0) img->dados[i][j-1] = 2;
+        if (i+1<img->altura && img->dados[i+1][j]==0) img->dados[i+1][j] = 2;
+        if (j+1<img->largura && img->dados[i][j+1]==0) img->dados[i][j+1] = 2;
+      }
+    }
+  }
+
+  for ( int i = 0; i < img->altura; i++ )
+    for ( int j = 0; j < img->largura; j++ )
+      if ( img->dados[i][j] == 2 )
+        img->dados[i][j] = 255;
 }
 
 /**
@@ -440,7 +464,7 @@ void image_equalization(Imagem1C *img, uint8_t *hist)
  * O processo de binarização é aplicado depois da utilização
  * da remoção de ruídos pelo filtros de Sobel.
  */
-void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x)
+void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x, int threshold)
 {
   /* Store average */
   float average = 0.0f;
@@ -454,7 +478,7 @@ void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uin
     for (int j = 0; j < 3; j++)
       average += neighbors[i][j] / 9;
 
-  if ( output->dados[coordinate_y][coordinate_x] > 99 )
+  if ( output->dados[coordinate_y][coordinate_x] > threshold )
     output->dados[coordinate_y][coordinate_x] = 0;
   else
     output->dados[coordinate_y][coordinate_x] = 255;

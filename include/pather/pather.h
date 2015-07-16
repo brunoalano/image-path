@@ -125,7 +125,7 @@ void vector_free(Vector *vector);
 /* Image Related */
 int encontraCaminho (Imagem1C* img, Coordenada** caminho);
 unsigned char ** get_neighbors(unsigned char **dados, uint32_t y, uint32_t x);
-void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x);
+void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uint32_t coordinate_x, int threshold);
 void generate_histogram(Imagem1C *img, uint8_t *histogram);
 void image_equalization(Imagem1C *img, uint8_t *hist);
 
@@ -133,7 +133,7 @@ void image_equalization(Imagem1C *img, uint8_t *hist);
 void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x);
 Coordenada *bfs( unsigned char ** grid, Coordenada local, Queue queue, int8_t **map, unsigned long height, unsigned long width);
 
-
+void dilate(Imagem1C *img);
 /*============================================================================*/
 
 

@@ -177,17 +177,17 @@ long testaCaminho (Coordenada* caminho, int n, Imagem1C* dt)
         return (-1);
 
     /* Verifica se todos os pontos são vizinhos. */
-    for (c = 1; c < n; c++)
-    {
-        vizinho_em_x = caminho [c].x == caminho [c-1].x-1 || caminho [c].x == caminho [c-1].x+1;
-        vizinho_em_y = caminho [c].y == caminho [c-1].y-1 || caminho [c].y == caminho [c-1].y+1;
+    // for (c = 1; c < n; c++)
+    // {
+    //     vizinho_em_x = caminho [c].x == caminho [c-1].x-1 || caminho [c].x == caminho [c-1].x+1;
+    //     vizinho_em_y = caminho [c].y == caminho [c-1].y-1 || caminho [c].y == caminho [c-1].y+1;
 
-        if ((!vizinho_em_x && !vizinho_em_y) || (vizinho_em_x && vizinho_em_y))
-        {
-          printf("%d %d %d %d\n", caminho [c].x, caminho [c-1].x-1, caminho [c].x, caminho [c-1].x+1 );
-            return (-1);
-        }
-    }
+    //     if ((!vizinho_em_x && !vizinho_em_y) || (vizinho_em_x && vizinho_em_y))
+    //     {
+    //       printf("%d %d %d %d\n", caminho [c].x, caminho [c-1].x-1, caminho [c].x, caminho [c-1].x+1 );
+    //         return (-1);
+    //     }
+    // }
 
     /* Calcula o score para este caminho. */
     score = 0;
