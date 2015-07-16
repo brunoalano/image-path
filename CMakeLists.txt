@@ -17,7 +17,7 @@ include_directories( include )
 # GCC Flags (also works for Clang)
 if ( "${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" MATCHES "Clang" )
   message( STATUS "Setting the flags for ${CMAKE_C_COMPILER_ID} compiler" )
-  add_definitions( --std=c99 )
+  add_definitions( --std=c99 -O3 )
 endif()
 
 # Setup the list of source files

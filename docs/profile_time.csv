@@ -1,0 +1,14 @@
+Running Time,Self (ms),,Symbol Name
+3204.0ms  100.0%,0, ,Main Thread  0x140bab
+3202.0ms   99.9%,0, , start
+3202.0ms   99.9%,0, ,  main
+1629.0ms   50.8%,32, ,   abreImagem1C
+812.0ms   25.3%,0, ,   abreImagem3C
+689.0ms   21.5%,7, ,   criaMatrizDT
+33.0ms    1.0%,0, ,   salvaImagem3C
+32.0ms    0.9%,7, ,   encontraCaminho
+4.0ms    0.1%,0, ,   destroiImagem3C
+2.0ms    0.0%,0, ,   destroiImagem1C
+1.0ms    0.0%,0, ,   <Unknown Address>
+2.0ms    0.0%,0, , _dyld_start
+2.0ms    0.0%,0, ,  dyldbootstrap::start(macho_header const*, int, char const**, long, macho_header const*, unsigned long*)

@@ -61,6 +61,18 @@ typedef struct Node {
 } Node;
 
 /**
+ * Estrutura Base do Breadth First Search
+ *
+ * Armazena o caminho que será utilizado ao decorrer
+ * pela matriz
+ */
+typedef struct path {
+  int x;
+  int y;
+  struct path* next;
+} path;
+
+/**
  * The Queue struct, contains the pointers that
  * point to first node and last node, the size of the Queue,
  * and the function pointers.

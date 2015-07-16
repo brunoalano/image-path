@@ -6,6 +6,10 @@
  *
  * This image contains a Bitmap, and we need to binarize it
  * for better results, and run some filters.
+ *
+ * @author Bruno Alano Medina <bruno [at] appzlab [dot] com>
+ * @author Paulo Tadashi
+ * @license LGPL
  */
 
 /* Standard Libraries */
@@ -73,7 +77,6 @@ int encontraCaminho (Imagem1C* img, Coordenada** caminho)
   Vector vector;
   vector_init(&vector);
 
-  
   /* Armazena o caminho retornado pela função */
   *caminho = captura_caminho(filtrada, &vector, 1);
   
@@ -203,6 +206,15 @@ Coordenada *captura_caminho(Imagem1C *filtrada, Vector *vector, int iteration)
   return caminho;
 }
 
+/**
+ * Dilate the Image
+ *
+ * Esta operação irá realizar a dilatação da imagem
+ * baseando-se nas suas valorações.
+ *
+ * Este algoritmo é lento, e pode ser otimizado. Seu tempo
+ * assintótico atual é O(n^2).
+ */
 void dilate(Imagem1C *img)
 {
   for ( int i = 0; i < img->altura; i++ )
@@ -227,6 +239,10 @@ void dilate(Imagem1C *img)
 
 /**
  * Discover the Start Point on Image
+ *
+ * Procura o ponto na primeira coluna da matriz onde
+ * seja branco, e o define como ponto inicial de nossa
+ * operação de busca.
  */
 void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x)
 {
@@ -245,21 +261,17 @@ void discover_start_point(Imagem1C *binary_image, int32_t *y, int32_t *x)
  * Breadth-first search
  *
  * The beauty of this algorithms, that is it always
- * find the shortest path
+ * find the shortest path.
  *
  * @param grid = matriz contendo imagem binarizada
  * @param local = ponto atual
  * @param height = altura do grid
  * @param width = largura do grid
  */
+
+/* Andar pelas 8 direções */
 int dx[] = {-1,1,0,0,-1,1,-1,1};
 int dy[] = {0,0,1,-1,-1,-1,1,1};
-
-typedef struct path{
-  int x;
-  int y;
-  struct path* next;
-} path;
 
 path* head;
 path* cur;
@@ -301,6 +313,7 @@ Coordenada *bfs( unsigned char ** grid, Coordenada startNode, Queue queue, int8_
       return obj;
     }
 
+    /* Percorre vizinhos */
     for(int i=0;i<8;i++)
     {
       int new_x = p.x + dx[i];
@@ -329,7 +342,7 @@ Coordenada *bfs( unsigned char ** grid, Coordenada startNode, Queue queue, int8_
     }
   }
 
-
+  /* Retorna vazio se não encontrar nada */
   return NULL;
 }
 
@@ -352,6 +365,7 @@ void push (Queue* queue, Coordenada item) {
     queue->tail = n;
     queue->size++;
 }
+
 /**
  * Return and remove the first item.
  */
@@ -366,6 +380,7 @@ Coordenada pop (Queue* queue) {
     free(head);
     return item;
 }
+
 /**
  * Return but not remove the first item.
  */
@@ -529,6 +544,8 @@ void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uin
  *
  * Retorna uma matriz de 3x3 contendo os vizinhos de uma
  * determinada coordenada de uma determinada matriz.
+ *
+ * Lembre-se: desalocar matriz posteriormente!
  */
 unsigned char ** get_neighbors(unsigned char **dados, uint32_t coordinate_y, uint32_t coordinate_x)
 {
@@ -565,8 +582,12 @@ void generate_histogram(Imagem1C *img, uint8_t *histogram)
       histogram[ img->dados[y][x] ]++;
 }
 
-
-
+/**
+ * Inicializa um Vetor Dinâmico
+ *
+ * Inicializamos um vetor dinâmico com uma capacidade
+ * pré-definida.
+ */
 void vector_init(Vector *vector) {
   // initialize size and capacity
   vector->size = 0;
@@ -576,6 +597,9 @@ void vector_init(Vector *vector) {
   vector->data = malloc(sizeof(Coordenada *) * vector->capacity);
 }
 
+/**
+ * Adiciona Elemento ao Vetor
+ */
 void vector_append(Vector *vector, Coordenada *value) {
   // make sure there's room to expand into
   vector_double_capacity_if_full(vector);
@@ -584,14 +608,20 @@ void vector_append(Vector *vector, Coordenada *value) {
   vector->data[vector->size++] = value;
 }
 
+/**
+ * Captura Elemento do Vetor
+ */
 Coordenada* vector_get(Vector *vector, int index) {
   if (index >= vector->size || index < 0) {
-    printf("Index %d out of bounds for vector of size %d\n", index, vector->size);
+    printf("Indice %d explode o tamanho %d do vetor\n", index, vector->size);
     exit(1);
   }
   return vector->data[index];
 }
 
+/**
+ * Define Valor em Determinado Índice
+ */
 void vector_set(Vector *vector, int index, Coordenada *value) {
   // zero fill the vector up to the desired index
   while (index >= vector->size) {
@@ -602,6 +632,13 @@ void vector_set(Vector *vector, int index, Coordenada *value) {
   vector->data[index] = value;
 }
 
+/**
+ * Aumenta o Tamanho do Vetor
+ *
+ * Utilizamos um aumento na base 2 devido ao `realloc`
+ * ser um processo custo e um tanto lento, onde ele faz
+ * o freeze do vetor inicial, e cria uma cópia.
+ */
 void vector_double_capacity_if_full(Vector *vector) {
   if (vector->size >= vector->capacity) {
     // double vector->capacity and resize the allocated memory accordingly
@@ -610,6 +647,9 @@ void vector_double_capacity_if_full(Vector *vector) {
   }
 }
 
+/**
+ * Yay!
+ */
 void vector_free(Vector *vector) {
   free(vector->data);
 }
