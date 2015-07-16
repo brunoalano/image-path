@@ -518,6 +518,10 @@ void binarization(Imagem1C *origin, Imagem1C *output, uint32_t coordinate_y, uin
     output->dados[coordinate_y][coordinate_x] = 0;
   else
     output->dados[coordinate_y][coordinate_x] = 255;
+
+  for (int i = 0; i < 3; i++)
+    free(neighbors[i]);
+  free(neighbors);
 }
 
 /**
