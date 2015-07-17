@@ -1,0 +1,58 @@
+-----------------------------------------------------------
+Auto Avaliação do Grupo
+-----------------------------------------------------------
+Autores: Bruno Alano Medina
+         Paulo Tadashi
+
+Paulo Tadashi
+~~~~~~~~~~~~~
+Realizei a binarização e acompanhei o processo do trabalho em que
+foi utilizado estruturas de dados complexas.
+- 1 hora extra-classe + o tempo em sala de aula.
+- 1 hora- Binarização.
+Tempo em sala: Acompanhamento
+
+Bruno Alano Medina
+~~~~~~~~~~~~~~~~~~
+Desenvolvi estruturas de dados que foram utilizadas no projeto
+juntamente com o algoritmo de Busca Profunda, onde tentei
+introduzir alguns conceitos de ambos ao companheiro de equipe.
+
+Colaborei com outros grupos à fim de conseguirem realizar
+a implementação da equalização do histograma e dicas de
+otimização. A função de equalização está implementada em
+"pather.c", como: "image_equalization".
+
+- 6 Horas em Casa, onde implementei alguns algoritmos, até
+  obter uma boa implementação do BFS e uma boa implementação
+  da Queue.
+- Tempo em sala, com pesquisas e desenvolvimento.
+
+Autoavaliação: Bruno Alano Medina
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Eu acredito que devido às pesquisas, e tentativas de otimizar,
+seja passível de uma nota de 90.0 à 10.0.
+
+Acredito que um ponto negativo, conforme você comentou, foi
+eu centralizar demais as ações no projeto.
+
+Avaliação: Bruno Alano Medina avalia Paulo Tadashi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O Paulo estava bem comprometido com o projeto, e graças aos
+questionamentos e sugestões, melhoramos nossa binarização da
+imagem e encontramos soluções alternativas para fazer certos
+processos.
+
+Eu, se possível, daria à ele a nota 10.0 pelo comprometimento
+e esforço em compreender os processos.
+
+Autoavaliação: Paulo Tadashi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Eu acho que mereço 9 porque não fui capaz de ajudar
+completamente.
+
+Avaliação: Paulo Tadashi avalia Bruno Alano Medina
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O Bruno dedicou grande parte do seu tempo para fazer tudo
+certo e que obtessemos os melhores resultados. Como está
+tudo rodando certo, então acho que ele merece 10

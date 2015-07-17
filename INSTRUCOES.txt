@@ -1,0 +1,57 @@
+-----------------------------------------------------------
+INSTRUÇÕES DE USO E DADOS SOBRE O PROJETO
+-----------------------------------------------------------
+Autores: Bruno Alano Medina
+         Paulo Tadashi
+
+1. Dados Gerais
+~~~~~~~~~~~~~~~
+O projeto apresentou a seguinte tabela de resultados, também
+disponível em "buid/out.txt" rodando em um tempo de 1.374s de
+acordo pela função "time ./pather" do Linux.
+
+37046
+8799
+9944
+21607
+96251
+25985
+126757
+
+Soma = 326389 (mil)
+
+2. Compilação
+~~~~~~~~~~~~~
+Nós utilizamos o programa CMake para gerar as Makefiles para
+qualquer compilador e sistema operacional, sendo então uma
+solução multiplataforma para compilação de projetos.
+
+Pode ser instalado com:
+  - apt-get install cmake (Ubuntu, Mint, Elementary)
+  - yum install cmake (CentOS, Redhat)
+  - pacman install cmake (Arch)
+
+Para compilar, utilizar os seguintes comandos:
+  - mkdir build && cd build
+  - cmake .. # Isto irá gerar a makefile para seu OS
+  - make # Normal, utilizando a Makefile gerada
+  - ./pather # Executa o programa
+
+3. Estrutura
+~~~~~~~~~~~~
+O projeto utiliza a pasta "include" como fonte de inclusão
+de cabeçalhos.
+
+Na pasta "src", contém os arquivos fontes/implementação das
+funções definidas pelos cabeçalhos.
+
+Na pasta "docs", um pequeno relatório sobre o tempo de execução
+de cada nível do programa, e também checagem de leaks de
+memória. No momento há apenas 13mb de memória sendo não 
+devidamente desalocada, porém, para solucionar tal problema, não
+é tão trivial.
+
+Em "img", as imagens fonte do problema proposto.
+
+O arquivo "CMakeLists.txt" contém nossas regras de compilação
+para que o CMake gere o Makefile esperado.
